@@ -1,13 +1,23 @@
 Package: aimer
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Amplified, Initially Marginal, Eigenvector Regression
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
-Encoding: UTF-8
+Date: 2017-04-05
+Authors@R: c(
+    person("Lei", "Ding", email = "dinglei@indiana.edu", role = "cre"),
+    person("Daniel", "McDonald", email = "dajmcdon@indiana.edu", role = "aut"))
+URL: http://github.com/dajmcdon/aimer
+BugReports: http://github.com/dajmcdon/aimer/issues
+Description:This package uses the marginal
+  relationship between predictor variables and a response to identify a small 
+  subset of measurements which appear
+  relevant for prediction, produce a low-dimensional linear embedding based on this
+  small subset, and amplify this embedding with information from
+  the remaining measurements. The goal is to perform principle components regression
+  (PCR), but in high dimensional settings where the number of measurements
+  exceeds the number of observations. The technique employed uses some approximation
+  methods to increase statistical and computational efficiency.
+License: GPL
 LazyData: true
 RoxygenNote: 6.0.1
 Imports: irlba,
