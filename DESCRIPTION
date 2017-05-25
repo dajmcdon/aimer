@@ -8,7 +8,7 @@ Authors@R: c(
     person("Daniel", "McDonald", email = "dajmcdon@indiana.edu", role = "aut"))
 URL: http://github.com/dajmcdon/aimer
 BugReports: http://github.com/dajmcdon/aimer/issues
-Description:This package uses the marginal
+Description: This package uses the marginal
   relationship between predictor variables and a response to identify a small 
   subset of measurements which appear
   relevant for prediction, produce a low-dimensional linear embedding based on this
@@ -21,4 +21,6 @@ License: GPL
 LazyData: true
 RoxygenNote: 6.0.1
 Imports: irlba,
-    glmnet
+    glmnet,
+    Rcpp, RcppArmadillo
+LinkingTo: Rcpp, RcppArmadillo
