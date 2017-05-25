@@ -1,3 +1,9 @@
+#' @useDynLib aimer
+#' @importFrom Rcpp sourceCpp
+#' @importFrom Rcpp evalCpp
+#' @linkingTo RcppArmadillo
+#' @include AIMER.R
+
 factorModelSim1 <- function(n, p, p1, lambdas, beta1, sig0, sig1){
   U = matrix(rep(c(1,-1),times=c(p1,3*p1)),ncol=2) # creates [[1,-1],[-1,-1]] for D
   U = rbind(U,matrix(0,p-2*p1,2)) # still sparse, the remaining rows have norm 0
