@@ -18,3 +18,8 @@ raimer <- function(X, y, t, b, d){
   X = scale(X, scale = FALSE)
   AIMER(X, y, t, b, d)
 }
+
+#' @export
+cMargT <- function(x,y){
+  CmarginalRegressionT(x,y)
+}
