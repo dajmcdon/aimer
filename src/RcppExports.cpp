@@ -6,15 +6,15 @@
 
 using namespace Rcpp;
 
-// CmarginalRegressionT
-arma::colvec CmarginalRegressionT(arma::mat X, arma::colvec y);
-RcppExport SEXP aimer_CmarginalRegressionT(SEXP XSEXP, SEXP ySEXP) {
+// marginalRegressionTT
+arma::colvec marginalRegressionTT(arma::mat X, arma::colvec y);
+RcppExport SEXP aimer_marginalRegressionTT(SEXP XSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
     Rcpp::traits::input_parameter< arma::colvec >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(CmarginalRegressionT(X, y));
+    rcpp_result_gen = Rcpp::wrap(marginalRegressionTT(X, y));
     return rcpp_result_gen;
 END_RCPP
 }
