@@ -1,10 +1,13 @@
 #include <RcppArmadillo.h>
 #include <iostream>
 
-arma::colvec marginalRegressionT(arma::mat X, arma::colvec y){
+// [[Rcpp::depends(RcppArmadillo)]]
+
+// [[Rcpp::export]]
+arma::colvec marginalRegressionTT(arma::mat X, arma::colvec y){
     int n = y.n_elem;
     int k = X.n_cols;
-    int syy = 0;
+    double syy = 0;
     double sxy = 0;
     double sxx = 0;
     double numer = 0;
@@ -46,12 +49,12 @@ MatrixInteger partition(arma::mat X, arma::colvec xt, double t){
     return output;
 }
 
-// [[Rcpp::depends(RcppArmadillo)]]
+
 
 // [[Rcpp::export]]
-arma::mat AIMER(arma::mat X, arma::colvec y,
+arma::colvec AIMER(arma::mat X, arma::colvec y,
                    double t, double b, int d){
-    arma::colvec xt = abs(marginalRegressionT(X, y));
+    arma::colvec xt = arma::abs(marginalRegressionTT(X, y));
     MatrixInteger parti = partition(X, xt, t);
     arma::mat Xnew = parti.matrix;
     arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);

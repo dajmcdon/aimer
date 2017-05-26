@@ -6,8 +6,20 @@
 
 using namespace Rcpp;
 
+// marginalRegressionTT
+arma::colvec marginalRegressionTT(arma::mat X, arma::colvec y);
+RcppExport SEXP aimer_marginalRegressionTT(SEXP XSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(marginalRegressionTT(X, y));
+    return rcpp_result_gen;
+END_RCPP
+}
 // AIMER
-arma::mat AIMER(arma::mat X, arma::colvec y, double t, double b, int d);
+arma::colvec AIMER(arma::mat X, arma::colvec y, double t, double b, int d);
 RcppExport SEXP aimer_AIMER(SEXP XSEXP, SEXP ySEXP, SEXP tSEXP, SEXP bSEXP, SEXP dSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

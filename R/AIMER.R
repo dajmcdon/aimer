@@ -18,3 +18,8 @@ raimer <- function(X, y, t, b, d){
     X = scale(X, scale = FALSE)
     AIMER(X, y, t, b, d)
 }
+
+#' @export
+marRegT <- function(X, y){
+    marginalRegressionTT(X, y)
+}

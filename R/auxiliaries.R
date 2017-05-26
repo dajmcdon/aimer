@@ -1,5 +1,6 @@
 ## Some helper functions which are not meant to be called directly
 
+#' @export
 marginalRegressionT <- function (x, y) {
   ## Purpose: gets t-statistics via marginal regression
   ## Inputs: an n x p matrix x
