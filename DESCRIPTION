@@ -24,10 +24,3 @@ Imports: irlba,
     glmnet,
     Rcpp, RcppArmadillo
 LinkingTo: Rcpp, RcppArmadillo
-Collate: 
-    'AIMER.R'
-    'RcppExports.R'
-    'auxiliaries.R'
-    'functions_v9_final.R'
-    'methods.R'
-    'simulTemp.R'
