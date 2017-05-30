@@ -23,4 +23,4 @@ RoxygenNote: 6.0.1
 Imports: irlba,
     glmnet,
     Rcpp, RcppArmadillo
-LinkingTo: Rcpp, RcppArmadillo
+LinkingTo: Rcpp, RcppArmadillo, Matrix

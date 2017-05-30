@@ -19,7 +19,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // AIMER
-arma::colvec AIMER(arma::mat X, arma::colvec y, double t, double b, int d);
+arma::mat AIMER(arma::mat X, arma::colvec y, double t, double b, int d);
 RcppExport SEXP aimer_AIMER(SEXP XSEXP, SEXP ySEXP, SEXP tSEXP, SEXP bSEXP, SEXP dSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

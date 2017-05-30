@@ -159,6 +159,7 @@ approximateSuperPCA <- function (x, y, ncomp, nCov, nCov.select=NULL,
                v <- svd$u[ , 1:ncomp, drop=FALSE]
                d <- svd$d[1:ncomp]^(1/2) #* (p/l)^(1/4)
                u <- scale(x.new %*% v, center=FALSE, scale=d)
+               print(head(x1))
                xmeans <- colMeans(x.new)
                ymean <- mean(y)
                ## the model is y-ymean = ud %*% gam

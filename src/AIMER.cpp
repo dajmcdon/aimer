@@ -1,4 +1,5 @@
 #include <RcppArmadillo.h>
+#include "irlb.h"
 #include <iostream>
 
 // [[Rcpp::depends(RcppArmadillo)]]
@@ -52,7 +53,7 @@ MatrixInteger partition(arma::mat X, arma::colvec xt, double t){
 
 
 // [[Rcpp::export]]
-arma::colvec AIMER(arma::mat X, arma::colvec y,
+arma::mat AIMER(arma::mat X, arma::colvec y,
                    double t, double b, int d){
     arma::colvec xt = arma::abs(marginalRegressionTT(X, y));
     MatrixInteger parti = partition(X, xt, t);
@@ -61,7 +62,7 @@ arma::colvec AIMER(arma::mat X, arma::colvec y,
     arma::mat UF;
     arma::vec SF;
     arma::mat VF;
-    svd(UF, SF, VF, F);
+    arma::svd(UF, SF, VF, F);
     arma::mat Vd = UF.cols(0, d - 1);
     arma::vec Sd;
     if(d < SF.n_elem){
