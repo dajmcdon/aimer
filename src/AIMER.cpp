@@ -1,5 +1,7 @@
 #include <RcppArmadillo.h>
+extern "C"{
 #include "irlb.h"
+}
 #include <iostream>
 
 // [[Rcpp::depends(RcppArmadillo)]]
