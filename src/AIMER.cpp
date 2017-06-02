@@ -1,7 +1,4 @@
 #include <RcppArmadillo.h>
-extern "C"{
-#include "irlb.h"
-}
 #include <iostream>
 
 // [[Rcpp::depends(RcppArmadillo)]]
@@ -55,7 +52,7 @@ MatrixInteger partition(arma::mat X, arma::colvec xt, double t){
 
 
 // [[Rcpp::export]]
-arma::mat AIMER(arma::mat X, arma::colvec y,
+arma::colvec AIMER(arma::mat X, arma::colvec y,
                    double t, double b, int d){
     arma::colvec xt = arma::abs(marginalRegressionTT(X, y));
     MatrixInteger parti = partition(X, xt, t);
