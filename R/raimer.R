@@ -19,7 +19,10 @@ raimer <- function(X, y, t, b, d){
   AIMER(X, y, t, b, d)
 }
 
+
 #' @export
-cMargT <- function(x,y){
-  CmarginalRegressionT(x,y)
+findThresholdAIMER0 <- function(X, y, nComps, nCovs, 
+                                nCovsMin, nCovsMax, nThresh, 
+                                kfold, progress){
+    findThresholdAIMER(X, y, nComps, nCovs, nCovsMin, nCovsMax, nThresh, kfold, progress)
 }

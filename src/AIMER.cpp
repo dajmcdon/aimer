@@ -3,7 +3,6 @@
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
-// [[Rcpp::export]]
 arma::colvec marginalRegressionTT(arma::mat X, arma::colvec y){
     int n = y.n_elem;
     int k = X.n_cols;
@@ -47,6 +46,41 @@ MatrixInteger partition(arma::mat X, arma::colvec xt, double t){
     output.matrix = X;
     output.num = tail;
     return output;
+}
+
+
+struct OUT{
+    int nCovBest;
+    int nCompBest;
+    arma::colvec ncomps;
+    arma::colvec ncovs;
+    arma::mat cvMSE;
+    arma::colvec mse;
+};
+
+arma::uvec randPerm(int k){
+    std::srand(time(NULL));            //still doesn't quite seem random
+    arma::uvec output = arma::uvec(k);
+    for(int i = 0; i < k; i++){
+        output[i] = i;
+    }
+    std::random_shuffle(output.begin(), output.end());
+    return output;
+}
+
+// [[Rcpp::export]]
+arma::uvec findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps, 
+                       arma::colvec nCovs,
+                       int nCovsMin,
+                       int nCovsMax,
+                       int nthresh,
+                       int kfold, bool progress){
+    arma::uvec indeces = randPerm(X.n_rows);
+    arma::cube CVmse = arma::cube(nthresh, ncomps.n_elem, kfold);
+    for(int k = 0; k <= kfold; k++){
+        
+    }
+    return indeces;
 }
 
 
