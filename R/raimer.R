@@ -33,7 +33,7 @@ findThresholdAIMER0 <- function(X, y, nComps, nCovs = NULL,
     if(is.null(nCovs)){
         nCovs <- round(seq(from=nCovs.min, to=nCovs.max, length.out=nthresh))
     }
-    out = findThresholdAIMER(X, y, nComps, nCovs, nCovs.min, nCovs.max, nthresh, kfold)
+    out = findThresholdAIMER(X, y, nComps, nCovs, nthresh, kfold)
     class(out) = 'supervisedPCACV'
     out$ncomps = as.vector(out$ncomps)
     out$nCovs = as.vector(out$nCovs)

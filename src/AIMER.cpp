@@ -110,8 +110,6 @@ double findThresh(arma::colvec t, double p){
 // [[Rcpp::export]]
 Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps, 
                        arma::colvec nCovs,
-                       int nCovsMin,
-                       int nCovsMax,
                        int nthresh,
                        int kfold){
     arma::uvec indeces = randPerm(X.n_rows);
