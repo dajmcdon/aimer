@@ -122,7 +122,7 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
     for(int k = 0; k < kfold; k++){
         stop = (k + 1)*foldSize - 1;
         TrainTest tt = ttsplit(X, y, start, stop);
-        arma::colvec tStats = marginalRegressionTT(tt.Xtrain, tt.ytrain);
+        arma::colvec tStats = arma::abs(marginalRegressionTT(tt.Xtrain, tt.ytrain));
         for(int i = 0; i < nthresh; i++){
             double threshold = findThresh(tStats, 1-(nCovs[i]/tt.Xtrain.n_cols));
             MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);
@@ -182,6 +182,84 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
                               Rcpp::Named("mse") = mse);
 }
 
+
+
+/*
+Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps, 
+                              arma::colvec nCovs,
+                              int nthresh,
+                              int kfold,
+                              int nthreshSelect){
+    arma::uvec indeces = randPerm(X.n_rows);
+    X = X.rows(indeces);
+    y = y.elem(indeces);
+    arma::cube CVmse = arma::cube(nthreshSelect, ncomps.n_elem, nthresh, kfold);
+    int start = 0;
+    int stop;
+    double foldSize = ((double) X.n_rows)/((double) kfold);
+    for(int k = 0; k < kfold; k++){
+        stop = (k + 1)*foldSize - 1;
+        TrainTest tt = ttsplit(X, y, start, stop);
+        arma::colvec tStats = marginalRegressionTT(tt.Xtrain, tt.ytrain);
+        for(int i = 0; i < nthresh; i++){
+            double threshold = findThresh(arma::abs(tStats), 1-(nCovs[i]/tt.Xtrain.n_cols));
+            MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);
+            arma::mat Xnew = parti.matrix;
+            arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
+            arma::mat UF;
+            arma::vec SF;
+            arma::mat VF;
+            arma::svd(UF, SF, VF, F);
+            for(int j = 0; j < ncomps.n_elem; j++){
+                arma::mat Vd = UF.cols(0, ncomps[j] - 1);
+                arma::vec Sd;
+                if(ncomps[j] < SF.n_elem){
+                    Sd = arma::sqrt(SF.subvec(0, ncomps[j] - 1));
+                }
+                else{
+                    Sd = arma::sqrt(SF);
+                }
+                arma::mat VSInv = arma::zeros<arma::mat>(Vd.n_rows, Sd.n_elem);
+                double sinv;
+                for(int l = 0; l < VSInv.n_cols; l++){
+                    sinv = 1/Sd(l);
+                    for(int m = 0; m < VSInv.n_rows; m++){
+                        VSInv(m, l) = sinv * Vd(m, l);
+                    }
+                }
+                arma::mat Ud = Xnew * VSInv;
+                arma::colvec beta = VSInv * trans(Ud) * tt.ytrain;
+                arma::mat testX = partition(tt.Xtest, tStats, threshold).matrix;
+                arma::colvec Yhat = testX * beta;
+                CVmse(i, j, k) = arma::mean(arma::square((tt.ytest - Yhat)));
+            }
+        }
+        start = stop + 1;
+    }
+    arma::mat mse = arma::mat(nthresh, ncomps.n_elem);
+    int bestnthresh = 0;
+    int bestncomp = 0;
+    arma::vec temp;
+    double minMSE = arma::mean(CVmse[0,0]);
+    for(int i = 0; i < nthresh; i++){
+        for(int j = 0; j < ncomps.n_elem; j++){
+            temp = CVmse.tube(i, j);
+            mse(i, j) = arma::mean(temp);
+            if(mse(i,j) < minMSE){
+                bestnthresh = i;
+                bestncomp = j;
+                minMSE = mse(i, j);
+            }
+        }
+    }
+    return Rcpp::List::create(Rcpp::Named("nCov.best") = nCovs[bestnthresh],
+                              Rcpp::Named("ncomp.best") = ncomps[bestncomp],
+                                                                Rcpp::Named("ncomps") = ncomps,
+                                                                Rcpp::Named("nCovs") = nCovs,
+                                                                Rcpp::Named("CVmse") = CVmse,
+                                                                Rcpp::Named("mse") = mse);
+}
+*/
 
 
 // [[Rcpp::export]]
