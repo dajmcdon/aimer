@@ -21,8 +21,17 @@ raimer <- function(X, y, t, b, d){
 
 
 #' @export
-findThresholdAIMER0 <- function(X, y, nComps, nCovs, 
-                                nCovsMin, nCovsMax, nThresh, 
-                                kfold, progress){
-    findThresholdAIMER(X, y, nComps, nCovs, nCovsMin, nCovsMax, nThresh, kfold, progress)
+findThresholdAIMER0 <- function(X, y, nComps, nCovs = NULL, 
+                                nCovs.min = ifelse(is.null(nCovs), max(nComps)+2, min(nCovs)),
+                                nCovs.max = ifelse(is.null(nCovs), nrow(X), max(nCovs)),
+                                nthresh = ifelse(is.null(nCovs), 25, length(nCovs)),
+                                kfold = 10) {
+    if(is.null(nCovs)){
+        nCovs <- round(seq(from=nCovs.min, to=nCovs.max, length.out=nthresh))
+    }
+    out = findThresholdAIMER(X, y, nComps, nCovs, nCovs.min, nCovs.max, nthresh, kfold)
+    #class(out) = 'supervisedPCACV'
+    #out$ncomps = as.vector(out$ncomps)
+    #out$nCovs = as.vector(out$nCovs)
+    return(out)
 }

@@ -108,12 +108,12 @@ double findThresh(arma::colvec t, double p){
 }
 
 // [[Rcpp::export]]
-arma::uvec findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps, 
+Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps, 
                        arma::colvec nCovs,
                        int nCovsMin,
                        int nCovsMax,
                        int nthresh,
-                       int kfold, bool progress){
+                       int kfold){
     arma::uvec indeces = randPerm(X.n_rows);
     X = X.rows(indeces);
     y = y.elem(indeces);
@@ -121,8 +121,8 @@ arma::uvec findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
     int start = 0;
     int stop;
     double foldSize = ((double) X.n_rows)/((double) kfold);
-    for(int k = 1; k <= kfold; k++){
-        stop = k*foldSize - 1;
+    for(int k = 0; k < kfold; k++){
+        stop = (k + 1)*foldSize - 1;
         TrainTest tt = ttsplit(X, y, start, stop);
         arma::colvec tStats = marginalRegressionTT(tt.Xtrain, tt.ytrain);
         for(int i = 0; i < nthresh; i++){
@@ -155,12 +155,33 @@ arma::uvec findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
                 arma::colvec beta = VSInv * trans(Ud) * tt.ytrain;
                 arma::mat testX = partition(tt.Xtest, tStats, threshold).matrix;
                 arma::colvec Yhat = testX * beta;
-                CVmse[i, j, k] = arma::mean(arma::square((tt.ytest - Yhat)));
+                CVmse(i, j, k) = arma::mean(arma::square((tt.ytest - Yhat)));
             }
         }
         start = stop + 1;
     }
-    return indeces;
+    arma::mat mse = arma::mat(nthresh, ncomps.n_elem);
+    int bestnthresh = 0;
+    int bestncomp = 0;
+    arma::vec temp;
+    double minMSE = arma::mean(CVmse[0,0]);
+    for(int i = 0; i < nthresh; i++){
+        for(int j = 0; j < ncomps.n_elem; j++){
+            temp = CVmse.tube(i, j);
+            mse(i, j) = arma::mean(temp);
+            if(mse(i,j) < minMSE){
+                bestnthresh = i;
+                bestncomp = j;
+                minMSE = mse(i, j);
+            }
+        }
+    }
+    return Rcpp::List::create(Rcpp::Named("nCov.best") = nCovs[bestnthresh],
+                              Rcpp::Named("ncomp.best") = ncomps[bestncomp],
+                              Rcpp::Named("ncomps") = ncomps,
+                              Rcpp::Named("nCovs") = nCovs,
+                              Rcpp::Named("CVmse") = CVmse,
+                              Rcpp::Named("mse") = mse);
 }
 
 

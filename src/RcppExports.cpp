@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // findThresholdAIMER
-arma::uvec findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps, arma::colvec nCovs, int nCovsMin, int nCovsMax, int nthresh, int kfold, bool progress);
-RcppExport SEXP aimer_findThresholdAIMER(SEXP XSEXP, SEXP ySEXP, SEXP ncompsSEXP, SEXP nCovsSEXP, SEXP nCovsMinSEXP, SEXP nCovsMaxSEXP, SEXP nthreshSEXP, SEXP kfoldSEXP, SEXP progressSEXP) {
+Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps, arma::colvec nCovs, int nCovsMin, int nCovsMax, int nthresh, int kfold);
+RcppExport SEXP aimer_findThresholdAIMER(SEXP XSEXP, SEXP ySEXP, SEXP ncompsSEXP, SEXP nCovsSEXP, SEXP nCovsMinSEXP, SEXP nCovsMaxSEXP, SEXP nthreshSEXP, SEXP kfoldSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -20,8 +20,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type nCovsMax(nCovsMaxSEXP);
     Rcpp::traits::input_parameter< int >::type nthresh(nthreshSEXP);
     Rcpp::traits::input_parameter< int >::type kfold(kfoldSEXP);
-    Rcpp::traits::input_parameter< bool >::type progress(progressSEXP);
-    rcpp_result_gen = Rcpp::wrap(findThresholdAIMER(X, y, ncomps, nCovs, nCovsMin, nCovsMax, nthresh, kfold, progress));
+    rcpp_result_gen = Rcpp::wrap(findThresholdAIMER(X, y, ncomps, nCovs, nCovsMin, nCovsMax, nthresh, kfold));
     return rcpp_result_gen;
 END_RCPP
 }
