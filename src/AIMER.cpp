@@ -58,6 +58,13 @@ struct OUT{
     arma::colvec mse;
 };
 
+struct TrainTest{
+    arma::mat Xtrain;
+    arma::mat Xtest;
+    arma::colvec ytrain;
+    arma::colvec ytest;
+};
+
 arma::uvec randPerm(int k){
     std::srand(time(NULL));            //still doesn't quite seem random
     arma::uvec output = arma::uvec(k);
@@ -68,6 +75,38 @@ arma::uvec randPerm(int k){
     return output;
 }
 
+
+
+
+//returns a TrainTest (defined above) where the test data is the rows
+//from start to stop including stop, and the train data is all of the rest.
+TrainTest ttsplit(arma::mat X, arma::colvec y, int start, int stop){
+    TrainTest output;
+    output.Xtest = X.rows(start, stop);
+    output.ytest = y.subvec(start, stop);
+    if(start == 0){
+        output.Xtrain = X.rows(stop + 1, X.n_rows - 1);
+        output.ytrain = y.subvec(stop + 1, y.n_elem - 1);
+    }
+    else if(stop == y.n_elem - 1){
+        output.Xtrain = X.rows(0, start - 1);
+        output.ytrain = y.subvec(0, start - 1);
+    }
+    else{
+        output.Xtrain = arma::join_cols(X.rows(0, start - 1), 
+                                        X.rows(stop + 1, X.n_rows - 1));
+        output.ytrain = arma::join_cols(y.subvec(0, start-1), y.subvec(stop + 1, X.n_rows - 1));
+    }
+    return output;
+}
+
+//not the same as R's quantile function
+double findThresh(arma::colvec t, double p){
+    t = arma::sort(t);
+    int index = t.n_elem*p;
+    return t[index + 1];
+}
+
 // [[Rcpp::export]]
 arma::uvec findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps, 
                        arma::colvec nCovs,
@@ -76,9 +115,50 @@ arma::uvec findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
                        int nthresh,
                        int kfold, bool progress){
     arma::uvec indeces = randPerm(X.n_rows);
+    X = X.rows(indeces);
+    y = y.elem(indeces);
     arma::cube CVmse = arma::cube(nthresh, ncomps.n_elem, kfold);
-    for(int k = 0; k <= kfold; k++){
-        
+    int start = 0;
+    int stop;
+    double foldSize = ((double) X.n_rows)/((double) kfold);
+    for(int k = 1; k <= kfold; k++){
+        stop = k*foldSize - 1;
+        TrainTest tt = ttsplit(X, y, start, stop);
+        arma::colvec tStats = marginalRegressionTT(tt.Xtrain, tt.ytrain);
+        for(int i = 0; i < nthresh; i++){
+            double threshold = findThresh(tStats, 1-(nCovs[i]/tt.Xtrain.n_cols));
+            MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);
+            arma::mat Xnew = parti.matrix;
+            arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
+            arma::mat UF;
+            arma::vec SF;
+            arma::mat VF;
+            arma::svd(UF, SF, VF, F);
+            for(int j = 0; j < ncomps.n_elem; j++){
+                arma::mat Vd = UF.cols(0, ncomps[j] - 1);
+                arma::vec Sd;
+                if(ncomps[j] < SF.n_elem){
+                    Sd = arma::sqrt(SF.subvec(0, ncomps[j] - 1));
+                }
+                else{
+                    Sd = arma::sqrt(SF);
+                }
+                arma::mat VSInv = arma::zeros<arma::mat>(Vd.n_rows, Sd.n_elem);
+                double sinv;
+                for(int l = 0; l < VSInv.n_cols; l++){
+                    sinv = 1/Sd(l);
+                    for(int m = 0; m < VSInv.n_rows; m++){
+                        VSInv(m, l) = sinv * Vd(m, l);
+                    }
+                }
+                arma::mat Ud = Xnew * VSInv;
+                arma::colvec beta = VSInv * trans(Ud) * tt.ytrain;
+                arma::mat testX = partition(tt.Xtest, tStats, threshold).matrix;
+                arma::colvec Yhat = testX * beta;
+                CVmse[i, j, k] = arma::mean(arma::square((tt.ytest - Yhat)));
+            }
+        }
+        start = stop + 1;
     }
     return indeces;
 }
