@@ -101,10 +101,13 @@ TrainTest ttsplit(arma::mat X, arma::colvec y, int start, int stop){
 }
 
 //not the same as R's quantile function
-double findThresh(arma::colvec t, double p){
+double findThresh(arma::colvec t, int num){
     t = arma::sort(t);
-    int index = t.n_elem*p;
-    return t[index + 1];
+    int index = t.n_elem - num;
+    if(index == 0){
+        return t[index] - 1; //everything will be above the threshold
+    }
+    return t[index - 1]; //num elements will be above the threshold
 }
 
 // [[Rcpp::export]]
@@ -124,7 +127,7 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
         TrainTest tt = ttsplit(X, y, start, stop);
         arma::colvec tStats = arma::abs(marginalRegressionTT(tt.Xtrain, tt.ytrain));
         for(int i = 0; i < nthresh; i++){
-            double threshold = findThresh(tStats, 1-(nCovs[i]/tt.Xtrain.n_cols));
+            double threshold = findThresh(tStats, nCovs[i]);
             MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);
             arma::mat Xnew = parti.matrix;
             arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
@@ -193,16 +196,16 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
     arma::uvec indeces = randPerm(X.n_rows);
     X = X.rows(indeces);
     y = y.elem(indeces);
-    arma::cube CVmse = arma::cube(nthreshSelect, ncomps.n_elem, nthresh, kfold);
+    arma::field<arma::colvec> CVmse = arma::field<arma::colvec>(nthreshSelect, ncomps.n_elem, nthresh);
     int start = 0;
     int stop;
     double foldSize = ((double) X.n_rows)/((double) kfold);
     for(int k = 0; k < kfold; k++){
         stop = (k + 1)*foldSize - 1;
         TrainTest tt = ttsplit(X, y, start, stop);
-        arma::colvec tStats = marginalRegressionTT(tt.Xtrain, tt.ytrain);
+        arma::colvec tStats = arma::abs(marginalRegressionTT(tt.Xtrain, tt.ytrain));
         for(int i = 0; i < nthresh; i++){
-            double threshold = findThresh(arma::abs(tStats), 1-(nCovs[i]/tt.Xtrain.n_cols));
+            double threshold = findThresh(tStats, nCovs[i]);
             MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);
             arma::mat Xnew = parti.matrix;
             arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
@@ -229,9 +232,12 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
                 }
                 arma::mat Ud = Xnew * VSInv;
                 arma::colvec beta = VSInv * trans(Ud) * tt.ytrain;
-                arma::mat testX = partition(tt.Xtest, tStats, threshold).matrix;
-                arma::colvec Yhat = testX * beta;
-                CVmse(i, j, k) = arma::mean(arma::square((tt.ytest - Yhat)));
+                //Select process
+                for(int l = 0; l < nthreshSelect; l++){
+                    arma::mat testX = partition(tt.Xtest, tStats, threshold).matrix;
+                    arma::colvec Yhat = testX * beta;
+                    CVmse(i, j, k) = arma::mean(arma::square((tt.ytest - Yhat)));
+                }
             }
         }
         start = stop + 1;
