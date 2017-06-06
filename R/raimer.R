@@ -30,6 +30,9 @@ findThresholdAIMER0 <- function(X, y, nComps, nCovs = NULL,
     y = as.vector(y)
     y = y - mean(y)
     X = scale(X, scale = FALSE)
+    indeces = sample(1:nrow(X), nrow(X))
+    X = X[indeces,]
+    y = y[indeces]
     if(is.null(nCovs)){
         nCovs <- round(seq(from=nCovs.min, to=nCovs.max, length.out=nthresh))
     }
@@ -55,6 +58,9 @@ findThresholdSelect <- function (X, y, ncomps, nCovs = NULL,
     y = as.vector(y)
     y = y - mean(y)
     X = scale(X, scale = FALSE)
+    indeces = sample(1:nrow(X), nrow(X))
+    X = X[indeces,]
+    y = y[indeces]
     if(is.null(nCovs)){
         nCovs <- round(seq(from=nCovs.min, to=nCovs.max, length.out=nthresh))
     }

@@ -65,17 +65,6 @@ struct TrainTest{
     arma::colvec ytest;
 };
 
-arma::uvec randPerm(int k){
-    std::srand(time(NULL));            //still doesn't quite seem random
-    arma::uvec output = arma::uvec(k);
-    for(int i = 0; i < k; i++){
-        output[i] = i;
-    }
-    std::random_shuffle(output.begin(), output.end());
-    return output;
-}
-
-
 
 
 //returns a TrainTest (defined above) where the test data is the rows
@@ -115,9 +104,6 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
                        arma::colvec nCovs,
                        int nthresh,
                        int kfold){
-    arma::uvec indeces = randPerm(X.n_rows);
-    X = X.rows(indeces);
-    y = y.elem(indeces);
     arma::cube CVmse = arma::cube(nthresh, ncomps.n_elem, kfold);
     int start = 0;
     int stop;
@@ -129,7 +115,7 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
         for(int i = 0; i < nthresh; i++){
             double threshold = findThresh(tStats, nCovs[i]);                 //TODO: move declarations outside of for loop
             MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);  //      -add comments for for loops
-            arma::mat Xnew = parti.matrix;                                  //      -mix up X's rows and Y's rows in R
+            arma::mat Xnew = parti.matrix;
             arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
             arma::mat UF;
             arma::vec SF;
@@ -194,9 +180,6 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
                               int kfold,
                               arma::colvec nCovsSelect,
                               int nthreshSelect){
-    arma::uvec indeces = randPerm(X.n_rows);
-    X = X.rows(indeces);
-    y = y.elem(indeces);
     arma::field<arma::colvec> CVmse = arma::field<arma::colvec>(nthreshSelect, ncomps.n_elem, nthresh);
     int start = 0;
     int stop;
