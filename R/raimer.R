@@ -63,9 +63,9 @@ findThresholdSelect <- function (X, y, ncomps, nCovs = NULL,
                                   length.out=nthresh.select))
     }
     out = findThresholdSel(X, y, ncomps, nCovs, nthresh, kfold, nCovs.select, nthresh.select)
-    #class(out) = 'supervisedPCACV'
-    #out$ncomps = as.vector(out$ncomps)
-    #out$nCovs = as.vector(out$nCovs)
-    #out$nCovsSelect = as.vector(out$nCovsSelect)
+    class(out) = 'supervisedPCACV'
+    out$ncomps = as.vector(out$ncomps)
+    out$nCovs = as.vector(out$nCovs)
+    out$nCovsSelect = as.vector(out$nCovsSelect)
     return(out)
 }
