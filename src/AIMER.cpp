@@ -127,9 +127,9 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
         TrainTest tt = ttsplit(X, y, start, stop);
         arma::colvec tStats = arma::abs(marginalRegressionTT(tt.Xtrain, tt.ytrain));
         for(int i = 0; i < nthresh; i++){
-            double threshold = findThresh(tStats, nCovs[i]);
-            MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);
-            arma::mat Xnew = parti.matrix;
+            double threshold = findThresh(tStats, nCovs[i]);                 //TODO: move declarations outside of for loop
+            MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);  //      -add comments for for loops
+            arma::mat Xnew = parti.matrix;                                  //      -mix up X's rows and Y's rows in R
             arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
             arma::mat UF;
             arma::vec SF;
@@ -187,11 +187,12 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
 
 
 
-/*
+//[[Rcpp::export]]
 Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps, 
                               arma::colvec nCovs,
                               int nthresh,
                               int kfold,
+                              arma::colvec nCovsSelect,
                               int nthreshSelect){
     arma::uvec indeces = randPerm(X.n_rows);
     X = X.rows(indeces);
@@ -231,41 +232,58 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
                     }
                 }
                 arma::mat Ud = Xnew * VSInv;
-                arma::colvec beta = VSInv * trans(Ud) * tt.ytrain;
+                arma::colvec initialBeta = VSInv * trans(Ud) * tt.ytrain;
                 //Select process
                 for(int l = 0; l < nthreshSelect; l++){
+                    arma::colvec beta = initialBeta;
+                    double bthresh = findThresh(arma::abs(beta), nCovsSelect(l));
+                    for(int m = 0; m < beta.n_elem; m++){
+                        if(beta(m) < bthresh && -1*beta(m) < bthresh){     //abs() only worked for integers
+                            beta(m) = 0;
+                        }
+                    }
+                    //no straightforward way to boolean index, so I use the whole test matrix and beta vector with zeros.
                     arma::mat testX = partition(tt.Xtest, tStats, threshold).matrix;
                     arma::colvec Yhat = testX * beta;
-                    CVmse(i, j, k) = arma::mean(arma::square((tt.ytest - Yhat)));
+                    if(k == 0){
+                        CVmse(l, j, i) = arma::colvec(kfold);
+                    }
+                    CVmse(l, j, i)(k) = arma::mean(arma::square((tt.ytest - Yhat)));
                 }
             }
         }
         start = stop + 1;
     }
-    arma::mat mse = arma::mat(nthresh, ncomps.n_elem);
+    arma::cube mse = arma::cube(nthreshSelect, ncomps.n_elem, nthresh);
     int bestnthresh = 0;
     int bestncomp = 0;
-    arma::vec temp;
-    double minMSE = arma::mean(CVmse[0,0]);
-    for(int i = 0; i < nthresh; i++){
+    int bestnthreshSelect = 0;
+    arma::vec temp = CVmse(0, 0, 0);
+    double minMSE = arma::mean(temp);
+    for(int i = 0; i < nthreshSelect; i++){
         for(int j = 0; j < ncomps.n_elem; j++){
-            temp = CVmse.tube(i, j);
-            mse(i, j) = arma::mean(temp);
-            if(mse(i,j) < minMSE){
-                bestnthresh = i;
-                bestncomp = j;
-                minMSE = mse(i, j);
+            for(int k = 0; k < nthresh; k++){
+                temp = CVmse(i, j, k);
+                mse(i, j, k) = arma::mean(temp);
+                if(mse(i,j,k) < minMSE){
+                    bestnthreshSelect = i;
+                    bestncomp = j;
+                    bestnthresh = k;
+                    minMSE = mse(i, j, k);
+                }
             }
         }
     }
-    return Rcpp::List::create(Rcpp::Named("nCov.best") = nCovs[bestnthresh],
+    return Rcpp::List::create(Rcpp::Named("nCov.select.best") = nCovsSelect[bestnthreshSelect],
                               Rcpp::Named("ncomp.best") = ncomps[bestncomp],
-                                                                Rcpp::Named("ncomps") = ncomps,
-                                                                Rcpp::Named("nCovs") = nCovs,
-                                                                Rcpp::Named("CVmse") = CVmse,
-                                                                Rcpp::Named("mse") = mse);
+                              Rcpp::Named("nCov.best") = nCovs[bestnthresh],
+                              Rcpp::Named("ncomps") = ncomps,
+                              Rcpp::Named("nCovs") = nCovs,
+                              Rcpp::Named("nCovs.select") = nCovsSelect,
+                              //Rcpp::Named("CVmse") = CVmse,       //Rcpp can't return this
+                              Rcpp::Named("mse") = mse);
 }
-*/
+
 
 
 // [[Rcpp::export]]
