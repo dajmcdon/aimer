@@ -108,12 +108,12 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
     int start = 0;
     int stop;
     double foldSize = ((double) X.n_rows)/((double) kfold);
-    for(int k = 0; k < kfold; k++){
+    for(int k = 0; k < kfold; k++){   //for each fold
         stop = (k + 1)*foldSize - 1;
         TrainTest tt = ttsplit(X, y, start, stop);
         arma::colvec tStats = arma::abs(marginalRegressionTT(tt.Xtrain, tt.ytrain));
-        for(int i = 0; i < nthresh; i++){
-            double threshold = findThresh(tStats, nCovs[i]);                 //TODO: move declarations outside of for loop
+        for(int i = 0; i < nthresh; i++){   //tries different number of nCovs[i] highest marginal correlations to accept
+            double threshold = findThresh(tStats, nCovs[i]);                 //TODO: (after trying partial svd to speed up) move declarations outside of for loop
             MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);  //      -add comments for for loops
             arma::mat Xnew = parti.matrix;
             arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
@@ -121,7 +121,7 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
             arma::vec SF;
             arma::mat VF;
             arma::svd(UF, SF, VF, F);
-            for(int j = 0; j < ncomps.n_elem; j++){
+            for(int j = 0; j < ncomps.n_elem; j++){    //tries different number of ncomps[j] largest singular values to use
                 arma::mat Vd = UF.cols(0, ncomps[j] - 1);
                 arma::vec Sd;
                 if(ncomps[j] < SF.n_elem){
@@ -132,7 +132,7 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
                 }
                 arma::mat VSInv = arma::zeros<arma::mat>(Vd.n_rows, Sd.n_elem);
                 double sinv;
-                for(int l = 0; l < VSInv.n_cols; l++){
+                for(int l = 0; l < VSInv.n_cols; l++){    //efficiently multiplys a diagonal matrix
                     sinv = 1/Sd(l);
                     for(int m = 0; m < VSInv.n_rows; m++){
                         VSInv(m, l) = sinv * Vd(m, l);
@@ -152,7 +152,7 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
     int bestncomp = 0;
     arma::vec temp;
     double minMSE = arma::mean(CVmse[0,0]);
-    for(int i = 0; i < nthresh; i++){
+    for(int i = 0; i < nthresh; i++){     //finds the minimal mse
         for(int j = 0; j < ncomps.n_elem; j++){
             temp = CVmse.tube(i, j);
             mse(i, j) = arma::mean(temp);
@@ -184,11 +184,11 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
     int start = 0;
     int stop;
     double foldSize = ((double) X.n_rows)/((double) kfold);
-    for(int k = 0; k < kfold; k++){
+    for(int k = 0; k < kfold; k++){    //for each fold
         stop = (k + 1)*foldSize - 1;
         TrainTest tt = ttsplit(X, y, start, stop);
         arma::colvec tStats = arma::abs(marginalRegressionTT(tt.Xtrain, tt.ytrain));
-        for(int i = 0; i < nthresh; i++){
+        for(int i = 0; i < nthresh; i++){   //tries different number nCovs[i] highest marginal correlations to use
             double threshold = findThresh(tStats, nCovs[i]);
             MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);
             arma::mat Xnew = parti.matrix;
@@ -197,7 +197,7 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
             arma::vec SF;
             arma::mat VF;
             arma::svd(UF, SF, VF, F);
-            for(int j = 0; j < ncomps.n_elem; j++){
+            for(int j = 0; j < ncomps.n_elem; j++){   //tries different number ncomps[j] largest singular values to use
                 arma::mat Vd = UF.cols(0, ncomps[j] - 1);
                 arma::vec Sd;
                 if(ncomps[j] < SF.n_elem){
@@ -208,7 +208,7 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
                 }
                 arma::mat VSInv = arma::zeros<arma::mat>(Vd.n_rows, Sd.n_elem);
                 double sinv;
-                for(int l = 0; l < VSInv.n_cols; l++){
+                for(int l = 0; l < VSInv.n_cols; l++){    //efficiently multiplies a diagonal matrix
                     sinv = 1/Sd(l);
                     for(int m = 0; m < VSInv.n_rows; m++){
                         VSInv(m, l) = sinv * Vd(m, l);
@@ -217,10 +217,10 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
                 arma::mat Ud = Xnew * VSInv;
                 arma::colvec initialBeta = VSInv * trans(Ud) * tt.ytrain;
                 //Select process
-                for(int l = 0; l < nthreshSelect; l++){
+                for(int l = 0; l < nthreshSelect; l++){    //tries different number nCovsSelect(l) largest betas to keep
                     arma::colvec beta = initialBeta;
                     double bthresh = findThresh(arma::abs(beta), nCovsSelect(l));
-                    for(int m = 0; m < beta.n_elem; m++){
+                    for(int m = 0; m < beta.n_elem; m++){   //sets the remaining betas to zero
                         if(beta(m) < bthresh && -1*beta(m) < bthresh){     //abs() only worked for integers
                             beta(m) = 0;
                         }
@@ -243,7 +243,7 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
     int bestnthreshSelect = 0;
     arma::vec temp = CVmse(0, 0, 0);
     double minMSE = arma::mean(temp);
-    for(int i = 0; i < nthreshSelect; i++){
+    for(int i = 0; i < nthreshSelect; i++){      //finds the smallest mse (and the best parameters)
         for(int j = 0; j < ncomps.n_elem; j++){
             for(int k = 0; k < nthresh; k++){
                 temp = CVmse(i, j, k);
@@ -290,7 +290,7 @@ arma::colvec AIMER(arma::mat X, arma::colvec y,
     }
     arma::mat VSInv = arma::zeros<arma::mat>(Vd.n_rows, Sd.n_elem);
     double sinv;
-    for(int i = 0; i < VSInv.n_cols; i++){
+    for(int i = 0; i < VSInv.n_cols; i++){   //efficiently multiplies diagonal matrix
         sinv = 1/Sd(i);
         for(int j = 0; j < VSInv.n_rows; j++){
             VSInv(j, i) = sinv * Vd(j, i);
