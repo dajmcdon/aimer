@@ -1,5 +1,6 @@
 #include <RcppArmadillo.h>
 #include <iostream>
+#include "irlb.h"
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
@@ -279,7 +280,11 @@ arma::colvec AIMER(arma::mat X, arma::colvec y,
     arma::mat UF;
     arma::vec SF;
     arma::mat VF;
-    arma::svd(UF, SF, VF, F);
+    //arma::svd(UF, SF, VF, F);
+    int isError = irlb(F.memptr(), F.n_rows, F.n_cols, d, SF.memptr(), UF.memptr(), VF.memptr());
+    if(isError != 0){
+        return arma::zeros<arma::colvec>(1);
+    }
     arma::mat Vd = UF.cols(0, d - 1);
     arma::vec Sd;
     if(d < SF.n_elem){

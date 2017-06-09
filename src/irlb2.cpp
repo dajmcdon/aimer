@@ -34,8 +34,8 @@
 #include "R_ext/Utils.h"
 #include "R_ext/Parse.h"
 
-#include "Matrix.h"
-#include "Matrix_stubs.c"
+//#include "Matrix.h"
+//#include "Matrix_stubs.c"
 
 #include "irlb.h"
 
@@ -43,21 +43,6 @@
 //using namespace Rcpp;
 
 // [[Rcpp::depends(RcppArmadillo)]]
-
-
-
-
-void
-    orthog (arma::mat& X, arma::mat& Y, arma::mat& T, int xm, int xn, int yn)
-    {
-        double a = 1, b = 1;
-        int inc = 1;
-        // T = t(X) * Y
-        T = X.t() * Y;
-        // Y = Y - X * T
-        Y -= X * T;
-    }
-
 
 
 
@@ -72,26 +57,26 @@ void
  * all data must be allocated by caller, required sizes listed below
  */
 int
-irlb (arma::mat &A,                // Input data matrix (double case)
+irlb (double *A,                // Input data matrix (double case)
       //void * AS,                // input data matrix (sparse case)
       //int mult,                 // 0 -> use double *A, 1 -> use AS
-      //int m,                    // data matrix number of rows, must be > 3.
-      //int n,                    // data matrix number of columns, must be > 3.
+      int m,                    // data matrix number of rows, must be > 3.
+      int n,                    // data matrix number of columns, must be > 3.
       int nu,                   // dimension of solution
-      int work,                 // working dimension, must be > 3.
-      int maxit,                // maximum number of main iterations
+      //int work,                 // working dimension, must be > 3.
+      //int maxit = 1000,                // maximum number of main iterations
       //int restart,              // 0->no, n>0 -> restarted algorithm of dimension n
-      double tol,               // convergence tolerance
+      //double tol,               // convergence tolerance
       //double *scale,            // optional scale (NULL for no scale) size n * 2
       //double *shift,            // optional shift (NULL for no shift)
       //double *center,           // optional center (NULL for no center)
       // output values
-      arma::colvec &s,                // output singular values at least length nu
-      arma::mat &U,                // output left singular vectors  m x work
-      arma::mat &V,                // output right singular vectors n x work
+      double *s,                // output singular values at least length nu
+      double *U,                // output left singular vectors  m x work
+      double *V)                // output right singular vectors n x work
       //int *ITER,                // ouput number of Lanczos iterations
       //int *MPROD,               // output number of matrix vector products
-      double eps,               // machine epsilon
+      //double eps,               // machine epsilon
       // working intermediate storage, sizes shown
       /*int lwork, double *V1,    // n x work
       double *U1,               // m x work
@@ -104,23 +89,28 @@ irlb (arma::mat &A,                // Input data matrix (double case)
       double *BW,               // lwork
       double *res,              // work
       double *T,                // lwork*/
-      double svtol,             // svtol limit
-      double *svratio)          // convtest extra storage vector of length work
+      //double svtol,             // svtol limit
+      //double *svratio)          // convtest extra storage vector of length work
 {
-  int m = A.n_rows, n = A.n_cols;
+    double eps = 2.220446e-16;
+    int maxit = 1000;
+    double tol = 0.000001;
+    double svtol = tol;
+    int work = nu + 7;
     //intermediate storage
-    arma::mat lwork = arma::mat(n, work);
-    arma::mat V1 = arma::mat(n, work);
-    arma::mat U1 = arma::mat(m, work);
-    arma::mat W = arma::mat(m, work);
-    arma::colvec F = arma::colvec(n);
-    arma::mat B = arma::zeros<arma::mat>(work, work);
-    arma::mat BU = arma::mat(work, work);
-    arma::mat BV = arma::mat(work, work);
-    arma::colvec BS = arma::colvec(work);
-    arma::colvec BW = arma::colvec(lwork);
-    arma::colvec res = arma::colvec(work);
-    arma::colvec T = arma::colvec(lwork);
+    int lwork = 7 * work * (1 + work);
+    double *V1 = arma::mat(n, work).memptr();
+    double *U1 = arma::mat(m, work).memptr();
+    double *W = arma::mat(m, work).memptr();
+    double *F = arma::colvec(n).memptr();
+    double *B = arma::mat(work, work).memptr();
+    double *BU = arma::mat(work, work).memptr();
+    double *BV = arma::mat(work, work).memptr();
+    double *BS = arma::colvec(work).memptr();
+    double *BW = arma::colvec(lwork).memptr();
+    double *res = arma::colvec(work).memptr();
+    double *T = arma::colvec(lwork).memptr();
+    double *svratio = arma::colvec(work).memptr();
   double d, S, R, alpha, beta, R_F, SS;
   double *x;
   int jj, kk;
@@ -136,8 +126,8 @@ irlb (arma::mat &A,                // Input data matrix (double case)
   if (work < 4 || n < 4 || m < 4)
     return -1;
 
-  /*if (restart == 0)
-    memset (B, 0, work * work * sizeof (double));*/    //moved to declaration of B
+  //if (restart == 0)
+    memset (B, 0, work * work * sizeof (double));    //moved to declaration of B
 /* Main iteration */
   while (iter < maxit)
     {
@@ -145,19 +135,19 @@ irlb (arma::mat &A,                // Input data matrix (double case)
 /*  Normalize starting vector */
       if (iter == 0 && restart == 0)
         {
-          /*d = F77_NAME (dnrm2) (&n, V, &inc);
+          d = F77_NAME (dnrm2) (&n, V, &inc);
           if (d < 2 * eps)
             return -1;
           d = 1 / d;
-          F77_NAME (dscal) (&n, &d, V, &inc);*/
-          V = arma::normalise(V);
+          F77_NAME (dscal) (&n, &d, V, &inc);
+          //V = arma::normalise(V);
         }
       else
         j = k;
 
 /* optionally apply scale */
-      /*x = V + j * n;
-      if (scale)                   //not using scale
+      x = V + j * n;
+      /*if (scale)                   //not using scale
         {
           x = scale + n;
           memcpy (scale + n, V + j * n, n * sizeof (double));
@@ -173,7 +163,7 @@ irlb (arma::mat &A,                // Input data matrix (double case)
         default:*/
         alpha = 1;
         beta = 0;
-        F77_NAME (dgemv) ("n", &m, &n, &alpha, (double &) A, &m, x,      //looks like W is a matrix and X is uninitialized?
+        F77_NAME (dgemv) ("n", &m, &n, &alpha, (double *) A, &m, x,      //looks like W is a matrix and X is uninitialized?
                             &inc, &beta, W + j * m, &inc);
         //}
       mprod++;
@@ -417,7 +407,7 @@ R_init_irlba (DllInfo * dll)
   M_R_cholmod_start (&chol_c);
   chol_c.final_ll = 1;  */        /* LL' form of simplicial factorization */
   /* need own error handler, that resets  final_ll (after *_defaults()) : */
-/*  chol_c.error_handler = irlba_R_cholmod_error;
+  /*chol_c.error_handler = irlba_R_cholmod_error;
 }
 
 void
