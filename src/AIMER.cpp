@@ -83,7 +83,7 @@ TrainTest ttsplit(arma::mat X, arma::colvec y, int start, int stop){
         output.ytrain = y.subvec(0, start - 1);
     }
     else{
-        output.Xtrain = arma::join_cols(X.rows(0, start - 1), 
+        output.Xtrain = arma::join_cols(X.rows(0, start - 1),
                                         X.rows(stop + 1, X.n_rows - 1));
         output.ytrain = arma::join_cols(y.subvec(0, start-1), y.subvec(stop + 1, X.n_rows - 1));
     }
@@ -101,7 +101,7 @@ double findThresh(arma::colvec t, int num){
 }
 
 // [[Rcpp::export]]
-Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps, 
+Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
                        arma::colvec nCovs,
                        int nthresh,
                        int kfold){
@@ -152,7 +152,8 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
     int bestnthresh = 0;
     int bestncomp = 0;
     arma::vec temp;
-    double minMSE = arma::mean(CVmse[0,0]);
+    temp = CVmse.tube(0,0);
+    double minMSE = arma::mean(temp);
     for(int i = 0; i < nthresh; i++){     //finds the minimal mse
         for(int j = 0; j < ncomps.n_elem; j++){
             temp = CVmse.tube(i, j);
@@ -175,7 +176,7 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
 
 
 //[[Rcpp::export]]
-Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps, 
+Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
                               arma::colvec nCovs,
                               int nthresh,
                               int kfold,

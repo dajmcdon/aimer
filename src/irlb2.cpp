@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,10 +24,14 @@
 #include <assert.h>
 #include <math.h>
 
+// #include <RcppArmadillo.h>
+
 #include <R.h>
 #define USE_RINTERNALS
 #include <Rinternals.h>
 #include <Rdefines.h>
+
+#include "irlb.h"
 
 #include "R_ext/BLAS.h"
 #include "R_ext/Lapack.h"
@@ -34,15 +39,32 @@
 #include "R_ext/Utils.h"
 #include "R_ext/Parse.h"
 
-//#include "Matrix.h"
-//#include "Matrix_stubs.c"
+#include "Matrix.h"
+// #include "Matrix_stubs.c"
 
-#include "irlb.h"
 
-#include <RcppArmadillo.h>
 //using namespace Rcpp;
 
-// [[Rcpp::depends(RcppArmadillo)]]
+SEXP
+  RNORM (int n)
+  {
+    char buf[4096];
+    SEXP cmdSexp, cmdexpr, ans = R_NilValue;
+    ParseStatus status;
+    cmdSexp = PROTECT (allocVector (STRSXP, 1));
+    snprintf (buf, 4095, "rnorm(%d)", n);
+    SET_STRING_ELT (cmdSexp, 0, mkChar (buf));
+    cmdexpr = PROTECT (R_ParseVector (cmdSexp, -1, &status, R_NilValue));
+    if (status != PARSE_OK)
+    {
+      UNPROTECT (2);
+      error ("invalid call");
+    }
+    for (int i = 0; i < length (cmdexpr); i++)
+      ans = eval (VECTOR_ELT (cmdexpr, i), R_GlobalEnv);
+    UNPROTECT (2);
+    return ans;
+  }
 
 
 
@@ -99,18 +121,18 @@ irlb (double *A,                // Input data matrix (double case)
     int work = nu + 7;
     //intermediate storage
     int lwork = 7 * work * (1 + work);
-    double *V1 = arma::mat(n, work).memptr();
-    double *U1 = arma::mat(m, work).memptr();
-    double *W = arma::mat(m, work).memptr();
-    double *F = arma::colvec(n).memptr();
-    double *B = arma::mat(work, work).memptr();
-    double *BU = arma::mat(work, work).memptr();
-    double *BV = arma::mat(work, work).memptr();
-    double *BS = arma::colvec(work).memptr();
-    double *BW = arma::colvec(lwork).memptr();
-    double *res = arma::colvec(work).memptr();
-    double *T = arma::colvec(lwork).memptr();
-    double *svratio = arma::colvec(work).memptr();
+    double *svratio = (double *) Calloc (work, double);
+    double *V1 = (double *) Calloc (n * work, double);
+    double *U1 = (double *) Calloc (m * work, double);
+    double *W = (double *) Calloc (m * work, double);
+    double *F = (double *) Calloc (n, double);
+    double *B = (double *) Calloc (work * work, double);
+    double *BU = (double *) Calloc (work * work, double);
+    double *BV = (double *) Calloc (work * work, double);
+    double *BS = (double *) Calloc (work, double);
+    double *BW = (double *) Calloc (lwork, double);
+    double *res = (double *) Calloc (work, double);
+    double *T = (double *) Calloc (lwork, double);
   double d, S, R, alpha, beta, R_F, SS;
   double *x;
   int jj, kk;
@@ -230,7 +252,7 @@ irlb (double *A,                // Input data matrix (double case)
               R = 1.0 / R_F;
               if (R_F < 2 * eps)        // near invariant subspace
                 {
-                  FOO = Rcpp::rnorm(n);
+                  FOO = RNORM(n);
                   for (kk = 0; kk < n; ++kk)
                     F[kk] = REAL (FOO)[kk];
                   orthog (V, F, T, n, j + 1, 1);
@@ -290,7 +312,7 @@ irlb (double *A,                // Input data matrix (double case)
               SS = 1.0 / S;
               if (S < 2 * eps)
                 {
-                  FOO = Rcpp::rnorm(m);
+                  FOO = RNORM(m);
                   jj = (j + 1) * m;
                   for (kk = 0; kk < m; ++kk)
                     W[jj + kk] = REAL (FOO)[kk];
