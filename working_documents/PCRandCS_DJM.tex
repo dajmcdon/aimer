@@ -1,0 +1,90 @@
+
+\documentclass[11pt]{article} 
+\usepackage[left=1in,top=1in,right=1in,bottom=1in,nohead]{geometry}
+\usepackage{pdfsync}
+\usepackage{setspace}
+\usepackage{hyperref} % add hyperlinks to citations
+\hypersetup{backref,colorlinks=true,citecolor=blue,linkcolor=blue,urlcolor=blue} % add color of citations
+
+%% Call packages that allow you to invoke certain mathematical symbols.
+\usepackage{amssymb,amsmath,amsthm}
+\usepackage{graphicx, caption, subcaption, listings, color}
+
+\usepackage[sort]{natbib} % [number, square] will let the
+\usepackage[font={small,it}, margin=2cm]{caption} % set figure caption
+                                % font, size, width.
+
+\DeclareMathOperator*{\argmin}{argmin}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+
+\begin{document}
+
+% Set the title, author, and date information.
+\begin{center}
+\noindent
+DJM\hfill Possible proof technique \hfill \today \\
+%\today \\
+\rule{6.5in}{1pt}
+\end{center}
+
+Building on PCRandCS (via DW),
+\begin{itemize}
+\item I'm thinking it will be better to do this under the model in the
+  paper. This means $U_{p-d}=0\Rightarrow R_d=0$, but no harm in
+  keeping it around for now.
+\item Eq.3 $\rightarrow$ Eq.4, $\tilde{U}_d$ became $U_d$, so
+  $V\Lambda$ needs to be $V_d\Lambda_d$ in Eq.4 (fixed in Eq.5).
+\item Eq.4 $\rightarrow$ Eq.5, factoring out $U_d^\top Y$, the second
+  half got missed. So starting from Eq.6, we should have
+  \begin{align}
+  &=\norm{U_d(F)\Lambda_d(F)^{-1}U_d(F)^\top V_d\Lambda_d -
+    V_d\Lambda_d^{-1}} M_d + R_d \mbox{ (dropping $R_d$ now)}\\
+  &\leq \norm{U_d(F)\Lambda_d(F)^{-1}U_d(F)^\top V_d\Lambda_d -
+    U_d(F)\Lambda_d(F)^{-1}\Lambda_d}M_d\\
+  &\quad + \norm{U_d(F)\Lambda_d(F)^{-1}\Lambda_d -
+    V_d\Lambda_d^{-1}} M_d\\
+  &\leq \norm{U_d(F)\Lambda_d(F)^{-1}}\norm{U_d(F)^\top
+    V_d-I}\norm{\Lambda_d} M_d\\
+  &\quad +\norm{U_d(F)\Lambda_d(F)^{-1/2}\Lambda_d(F)^{-1/2}\Lambda_d -
+    V_d\Lambda_d^{-1}} M_d\\
+  &\leq \norm{U_d(F)\Lambda_d(F)^{-1}}\norm{U_d(F)^\top
+    V_d-I}\norm{\Lambda_d} M_d\\
+  &\quad
+    +\norm{U_d(F)\Lambda_d(F)^{-1/2}}\norm{\Lambda_d(F)^{-1/2}\Lambda_d
+    - I}M_d + \norm{U_d(F)\Lambda_d(F)^{-1/2}-
+    V_d\Lambda_d^{-1}} M_d
+  \end{align}
+\item Is there a relationship between $\norm{\Lambda_d}$ and
+  $\norm{\Lambda_d(F)}$? This would be nice.
+\item $M_d$ seems like it will be a pain: $\Theta(n)$.
+\item My thinking (up to now) had been to mimic Paul, Bair, et.\ al:
+  \begin{enumerate}
+  \item Show that $\norm{\sin(\mathcal{E},\mathcal{F})}$ is small
+    where $\mathcal{E}$ is the span of $V_d$ and $\mathcal{F}$ is the
+    span of $U_d(F)$.
+  \item Show that $\norm{\Lambda(F)_d-\Lambda_d}$ is small.
+  \item See whether this gives anything about $\hat{\beta}_d$.
+  \end{enumerate}
+\item For the first step, this would amount to examining a function of
+  $V_dV_d^\top-U_d(F)U_d(F)^\top$. I was thinking with Lemma 4.2 or
+  Corollary 4.1 in Lei and Vu's sparse PCA paper. Although, this again
+  is just a different way of measuring the approximation accuracy of
+  $U_d(F)$.
+\item My thoughts on the target journal here is JCGS. To that end, I
+  think we need some or all of the following:
+  \begin{enumerate}
+  \item Minor theoretical contributions along the lines above. Get as
+    far as we can before it gets painful, likely under strong assumptions.
+  \item Do the Nystrom version as well. (Already done in simulations,
+    it's a bit worse, though not terrible)
+  \item Implement GLMs.
+  \end{enumerate}
+
+
+\end{itemize}
+
+
+
+
+
+\end{document}
