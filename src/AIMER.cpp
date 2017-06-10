@@ -278,14 +278,15 @@ arma::colvec AIMER(arma::mat X, arma::colvec y,
     MatrixInteger parti = partition(X, xt, t);
     arma::mat Xnew = parti.matrix;
     arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
-    arma::mat UF;
-    arma::vec SF;
-    arma::mat VF;
-    //arma::svd(UF, SF, VF, F);
-    int isError = irlb(F.memptr(), F.n_rows, F.n_cols, d, SF.memptr(), UF.memptr(), VF.memptr());
-    if(isError != 0){
+    arma::mat UF = arma::mat(F.n_rows, d + 7);
+    arma::vec SF = arma::vec(d + 7);
+    arma::mat VF = arma::mat(d + 7, F.n_cols);
+    //arma::svd(UF, SF, VF, F);                        //use this line for the old method
+    int isError = irlb(F.memptr(), F.n_rows, F.n_cols, d, SF.memptr(), UF.memptr(), VF.memptr());   //use this line for the new method
+    return SF;
+    /*if(isError != 0){
         return arma::zeros<arma::colvec>(1);
-    }
+    }*/
     arma::mat Vd = UF.cols(0, d - 1);
     arma::vec Sd;
     if(d < SF.n_elem){
