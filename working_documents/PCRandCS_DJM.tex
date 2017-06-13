@@ -7,7 +7,7 @@
 \hypersetup{backref,colorlinks=true,citecolor=blue,linkcolor=blue,urlcolor=blue} % add color of citations
 
 %% Call packages that allow you to invoke certain mathematical symbols.
-\usepackage{amssymb,amsmath,amsthm}
+\usepackage{amssymb,amsmath,amsthm,amsfonts}
 \usepackage{graphicx, caption, subcaption, listings, color}
 
 \usepackage[sort]{natbib} % [number, square] will let the
@@ -16,6 +16,9 @@
 
 \DeclareMathOperator*{\argmin}{argmin}
 \newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\X}{\mathbb{X}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Expect}[1]{\mathbb{E}\left[ #1 \right]}
 
 \begin{document}
 
@@ -27,36 +30,63 @@ DJM\hfill Possible proof technique \hfill \today \\
 \rule{6.5in}{1pt}
 \end{center}
 
-Building on PCRandCS (via DW),
+\section{Darren's approach}
+Suppose $\X = UΛV^\top$. Then a plug-in PCR-based estimate of $\beta$
+is $\tilde\beta_d= V_d\Lambda_d^{-1}U^\top Y$ .
+We can make a plug-in estimate (using the notation from Ding and
+McDonald) $\hat\beta_d= U_d(F )\Lambda_d(F )^{-1}U_d(F )^\top \X^\top
+Y$.  Also, write $U = [U_d\ U_{p-d}]$ to be the decomposition of $U$
+into the first $d$ columns and last $p-d$ 
+columns and write $\tilde{U}_d$ and $\tilde{U}_{̃p-d}$ to indicate
+padding with zeros to give the same dimension as $U$. 
+Now, $U_d(F ) \approx V_d$, $\Lambda_d(F )^{-1} \approx \Lambda^{-2}$,
+and $U_d(F )^\top V \approx  [I_d\ 0]$. So, I’ll proceed as usual to distill this
+ expression down to these parts\footnote{Needing repeated constant 2
+   for $\norm{a + b}^2 \leq 2(\norm{a}^2 + \norm{b}^2)$.} 
+ \begin{itemize}
+ \item I'm thinking it will be better to do this under the model in the
+   paper. This means $U_{p-d}=0\Rightarrow R_d=0$, but no harm in
+   keeping it around for now.
+ \item Rewriting from the beginning:
+   \begin{align}
+     \norm{\hat\beta_d-\tilde\beta_d} 
+     &= \norm{ U_d(F )\Lambda_d(F )^{-1}U_d(F )^\top \X^\top
+       Y - V_d\Lambda_d^{-1}U^\top Y}\\
+     &= \norm{U_d(F )\Lambda_d(F )^{-1}U_d(F )^\top V\Lambda[U_d\ U_{p-d}]^\top
+       Y - V_d\Lambda_d^{-1}U^\top Y}\\
+     &= \norm{U_d(F )\Lambda_d(F )^{-1}U_d(F )^\top V\Lambda(\tilde
+       U_d^\top Y +\tilde U_{p-d}^\top Y
+       - V_d\Lambda_d^{-1}U^\top Y}\\
+     &\leq \norm{U_d(F )\Lambda_d(F )^{-1}U_d(F )^\top V\Lambda\tilde
+       U_d^\top Y}\\
+     &\quad + \norm{U_d(F )\Lambda_d(F )^{-1}U_d(F )^\top V\Lambda
+       \tilde U_{p-d}^\top Y}\\
+     &\leq \norm{U_d(F)\Lambda_d(F)^{-1}U_d(F)^\top V_d\Lambda_d -
+       V_d\Lambda_d^{-1}} \norm{U_d^\top Y} + R_d\\
+     &=\norm{U_d(F)\Lambda_d(F)^{-1}U_d(F)^\top V_d\Lambda_d -
+       V_d\Lambda_d^{-1}} M_d + R_d \mbox{ (dropping $R_d$ now)}\\
+     &\leq \norm{U_d(F)\Lambda_d(F)^{-1}U_d(F)^\top V_d\Lambda_d -
+       U_d(F)\Lambda_d(F)^{-1}\Lambda_d}M_d\\
+     &\quad + \norm{U_d(F)\Lambda_d(F)^{-1}\Lambda_d -
+       V_d\Lambda_d^{-1}} M_d\\
+     &\leq \norm{U_d(F)\Lambda_d(F)^{-1}}\norm{U_d(F)^\top
+       V_d-I}\norm{\Lambda_d} M_d\\
+     &\quad +\norm{U_d(F)\Lambda_d(F)^{-1/2}\Lambda_d(F)^{-1/2}\Lambda_d -
+       V_d\Lambda_d^{-1}} M_d\\
+     &\leq \norm{U_d(F)\Lambda_d(F)^{-1}}\norm{U_d(F)^\top
+       V_d-I}\norm{\Lambda_d} M_d\\
+     &\quad
+       +\norm{U_d(F)\Lambda_d(F)^{-1/2}}\norm{\Lambda_d(F)^{-1/2}\Lambda_d
+       - I}M_d + \norm{U_d(F)\Lambda_d(F)^{-1/2}-
+       V_d\Lambda_d^{-1}} M_d
+   \end{align}
+ \item Is there a relationship between $\norm{\Lambda_d}$ and
+   $\norm{\Lambda_d(F)}$? This would be nice.
+ \item $M_d$ seems like it will be a pain: $\Theta(n)$.
+ \end{itemize}
+
+\section{Another option}
 \begin{itemize}
-\item I'm thinking it will be better to do this under the model in the
-  paper. This means $U_{p-d}=0\Rightarrow R_d=0$, but no harm in
-  keeping it around for now.
-\item Eq.3 $\rightarrow$ Eq.4, $\tilde{U}_d$ became $U_d$, so
-  $V\Lambda$ needs to be $V_d\Lambda_d$ in Eq.4 (fixed in Eq.5).
-\item Eq.4 $\rightarrow$ Eq.5, factoring out $U_d^\top Y$, the second
-  half got missed. So starting from Eq.6, we should have
-  \begin{align}
-  &=\norm{U_d(F)\Lambda_d(F)^{-1}U_d(F)^\top V_d\Lambda_d -
-    V_d\Lambda_d^{-1}} M_d + R_d \mbox{ (dropping $R_d$ now)}\\
-  &\leq \norm{U_d(F)\Lambda_d(F)^{-1}U_d(F)^\top V_d\Lambda_d -
-    U_d(F)\Lambda_d(F)^{-1}\Lambda_d}M_d\\
-  &\quad + \norm{U_d(F)\Lambda_d(F)^{-1}\Lambda_d -
-    V_d\Lambda_d^{-1}} M_d\\
-  &\leq \norm{U_d(F)\Lambda_d(F)^{-1}}\norm{U_d(F)^\top
-    V_d-I}\norm{\Lambda_d} M_d\\
-  &\quad +\norm{U_d(F)\Lambda_d(F)^{-1/2}\Lambda_d(F)^{-1/2}\Lambda_d -
-    V_d\Lambda_d^{-1}} M_d\\
-  &\leq \norm{U_d(F)\Lambda_d(F)^{-1}}\norm{U_d(F)^\top
-    V_d-I}\norm{\Lambda_d} M_d\\
-  &\quad
-    +\norm{U_d(F)\Lambda_d(F)^{-1/2}}\norm{\Lambda_d(F)^{-1/2}\Lambda_d
-    - I}M_d + \norm{U_d(F)\Lambda_d(F)^{-1/2}-
-    V_d\Lambda_d^{-1}} M_d
-  \end{align}
-\item Is there a relationship between $\norm{\Lambda_d}$ and
-  $\norm{\Lambda_d(F)}$? This would be nice.
-\item $M_d$ seems like it will be a pain: $\Theta(n)$.
 \item My thinking (up to now) had been to mimic Paul, Bair, et.\ al:
   \begin{enumerate}
   \item Show that $\norm{\sin(\mathcal{E},\mathcal{F})}$ is small
@@ -65,26 +95,63 @@ Building on PCRandCS (via DW),
   \item Show that $\norm{\Lambda(F)_d-\Lambda_d}$ is small.
   \item See whether this gives anything about $\hat{\beta}_d$.
   \end{enumerate}
+\item Start with the model:
+  \begin{align}
+    \X &= U_G \Lambda_G V_G^\top + \sigma_0 E\\
+    Y &= U_K\Theta + \sigma_1 Z
+  \end{align}
+  where $\X \in \R^{n\times p}$, $G \ll p$, $G <n$, $K\leq G$,
+  $U_g\sim N(0,I_n)$, $E_{ij} \sim N(0,1)$, and $Z \sim N(0,I_n)$.
+\item An implication of this model is:
+  \begin{align}
+  \Sigma_{xx} &= \Expect{x_i x_i^\top} = V_G\Lambda_G^2V^\top_G +
+                \sigma_0^2 I_p.
+  \end{align}
+\item There are a few things we could do at this point, but I think we
+  should make the following assumption:
+  $\norm{V_G}_{2,0}=\#\{\norm{V_{j,G}}_2\neq 0\} \leq p_*
+  <n<p$. This is a ``row sparsity'' assumption as
+  in~\citet{VuLei2013}. It also the corresponds to the set
+  $\mathcal{D} = \{j:\norm{\Lambda_GV_{j,G}}_2\neq 0\}$
+  in~\citet{paul2008preconditioning} via the inequality
+  $\norm{\Lambda_GV_{j,G}}_2 \leq
+  \norm{V_{j,G}}_2\norm{\Lambda_G}_2$. Essentially this means that
+  only $p_*$ variables actually provide information about $col(V_G)$.
+\item ``Row sparsity'' also matches how we generated data for the
+  simulations. Actually, we used more than this: we set $V_{G,j}=0$ for many $j$.
+\item Finally, we have that the selected variables in the marginal
+  regression screening step are a subset of $\mathcal{D}$ and hence,
+  we correctly recover some of the necessary variables.
+\item Now, the beginning of the idea:
+\begin{enumerate}
+\item Set $\sigma_0=0$ and $\sigma_1=0$, the no-noise model.
+\item Suppose marginal regression recovers $q$ of the $p_*$ relevant
+  variables.
+\item Can we characterize $\norm{U_K(F)^\top V_K - I}$?
 \item For the first step, this would amount to examining a function of
-  $V_dV_d^\top-U_d(F)U_d(F)^\top$. I was thinking with Lemma 4.2 or
+  $V_KV_K^\top-U_K(F)U_K(F)^\top$. I was thinking with Lemma 4.2 or
   Corollary 4.1 in Lei and Vu's sparse PCA paper. Although, this again
   is just a different way of measuring the approximation accuracy of
-  $U_d(F)$.
-\item My thoughts on the target journal here is JCGS. To that end, I
-  think we need some or all of the following:
-  \begin{enumerate}
-  \item Minor theoretical contributions along the lines above. Get as
-    far as we can before it gets painful, likely under strong assumptions.
-  \item Do the Nystrom version as well. (Already done in simulations,
-    it's a bit worse, though not terrible)
-  \item Implement GLMs.
-  \end{enumerate}
-
-
+  $U_K(F)$. So maybe this is already done?
+\end{enumerate}
+\item Can we restate Darren's version in terms of this model?
 \end{itemize}
 
+\section{Thoughts}
+My thoughts on the target journal here is JCGS. To that end, I
+think we need some or all of the following:
+\begin{enumerate}
+\item Minor theoretical contributions along the lines above. Get as
+  far as we can before it gets painful, likely under strong assumptions.
+\item Do the Nystrom version as well. (Already done in simulations,
+  it's a bit worse, though not terrible)
+\item Implement GLMs.
+\end{enumerate}
 
 
 
 
+
+\bibliographystyle{mybibsty}
+\bibliography{AllReferences}
 \end{document}

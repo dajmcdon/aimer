@@ -5,3 +5,6 @@
 aimer.Rproj
 man
 .Rbuildignore
+*.blg
+*.pdfsync
+*.rel
