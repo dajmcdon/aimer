@@ -123,22 +123,23 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
                                           Rcpp::Named("columns") = F.n_cols,
                                           Rcpp::Named("rows") = F.n_rows);
             }
+            int mx = arma::max(ncomps);
+            arma::mat UF = arma::zeros<arma::mat>(F.n_rows, mx + 7);
+            arma::vec SF = arma::zeros<arma::vec>(mx + 7);
+            arma::mat VF = arma::zeros<arma::mat>(mx + 7, F.n_cols);
+            VF.col(0) = arma::randn(VF.n_rows);
+            if((F.n_cols < (mx + 7)) || (mx >= (0.5*F.n_cols))){
+                arma::svd(UF, SF, VF, F);                        //full svd
+            }
+            else{
+                int isError = irlb(F.memptr(), F.n_rows, F.n_cols, mx, SF.memptr(), UF.memptr(), VF.memptr());   //partial svd
+                if(isError != 0){
+                    return Rcpp::List::create(Rcpp::Named("Error") = isError,
+                                              Rcpp::Named("ncomps") = mx,
+                                              Rcpp::Named("Fcolumns") = F.n_cols);
+                }
+            }
             for(int j = 0; j < ncomps.n_elem; j++){    //tries different number of ncomps[j] largest singular values to use
-                arma::mat UF = arma::zeros<arma::mat>(F.n_rows, ncomps[j] + 7);
-                arma::vec SF = arma::zeros<arma::vec>(ncomps[j] + 7);
-                arma::mat VF = arma::zeros<arma::mat>(ncomps[j] + 7, F.n_cols);
-                VF.col(0) = arma::randn(VF.n_rows);
-                if((F.n_cols < (ncomps[j] + 7)) || (ncomps[j] >= (0.5*F.n_cols))){
-                    arma::svd(UF, SF, VF, F);                        //full svd
-                }
-                else{
-                    int isError = irlb(F.memptr(), F.n_rows, F.n_cols, ncomps[j], SF.memptr(), UF.memptr(), VF.memptr());   //partial svd
-                    if(isError != 0){
-                        return Rcpp::List::create(Rcpp::Named("Error") = isError,
-                                                  Rcpp::Named("ncomps") = ncomps[j],
-                                                  Rcpp::Named("Fcolumns") = F.n_cols);
-                    }
-                }
                 arma::mat Vd = UF.cols(0, ncomps[j] - 1);
                 arma::vec Sd = arma::sqrt(SF.subvec(0, ncomps[j] - 1));
                 arma::mat VSInv = arma::zeros<arma::mat>(Vd.n_rows, Sd.n_elem);
