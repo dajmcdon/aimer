@@ -128,7 +128,7 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
                 arma::vec SF = arma::zeros<arma::vec>(ncomps[j] + 7);
                 arma::mat VF = arma::zeros<arma::mat>(ncomps[j] + 7, F.n_cols);
                 VF.col(0) = arma::randn(VF.n_rows);
-                if((F.n_cols < (ncomps[j] + 7)) || (ncomps[j] > (0.5*F.n_cols))){
+                if((F.n_cols < (ncomps[j] + 7)) || (ncomps[j] >= (0.5*F.n_cols))){
                     arma::svd(UF, SF, VF, F);                        //full svd
                 }
                 else{
@@ -221,7 +221,7 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
                 arma::vec SF = arma::zeros<arma::vec>(ncomps[j] + 7);
                 arma::mat VF = arma::zeros<arma::mat>(ncomps[j] + 7, F.n_cols);
                 VF.col(0) = arma::randn(VF.n_rows);
-                if((F.n_cols < (ncomps[j] + 7)) || (ncomps[j] > (0.5*F.n_cols))){
+                if((F.n_cols < (ncomps[j] + 7)) || (ncomps[j] >= (0.5*F.n_cols))){
                     arma::svd(UF, SF, VF, F);                        //full svd
                 }
                 else{
@@ -317,7 +317,7 @@ arma::colvec AIMER(arma::mat X, arma::colvec y,
     arma::vec SF = arma::zeros<arma::vec>(d + 7);
     arma::mat VF = arma::zeros<arma::mat>(d + 7, F.n_cols);
     VF.col(0) = arma::randn(VF.n_rows);
-    if((F.n_cols < (d + 7)) || (d > (0.5*F.n_cols))){
+    if((F.n_cols < (d + 7)) || (d >= (0.5*F.n_cols))){
         arma::svd(UF, SF, VF, F);                        //full svd
     }
     else{
