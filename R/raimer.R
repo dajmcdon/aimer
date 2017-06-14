@@ -1,4 +1,4 @@
-#'performs Amplified, Initially Marginal, Eigenvector Regression (AIMER)
+#'performs Amplified, Initially Marginal, Eigenvector Regression (AIMER) for fixed t, b, and d
 #'
 #'@param X required, design matrix with dimension (n, p).
 #'@param y required, response vector with dimension n.
