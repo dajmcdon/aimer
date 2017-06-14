@@ -1,0 +1,16 @@
+\begin{thebibliography}{999}
+\newcommand{\enquote}[1]{``#1''}
+
+\bibitem[Paul et~al.(2008)Paul, Bair, Hastie, and
+  Tibshirani]{paul2008preconditioning}
+{\sc Paul, D., Bair, E., Hastie, T., and Tibshirani, R.} (2008),
+  \enquote{`{P}reconditioning' for feature selection and regression in
+  high-dimensional problems,} \emph{The Annals of Statistics}, {\bf 36}(4),
+  1595--1618.
+
+\bibitem[Vu and Lei(2013)Vu and Lei]{VuLei2013}
+{\sc Vu, V.~Q., and Lei, J.} (2013), \enquote{Minimax sparse principal subspace
+  estimation in high dimensions,} \emph{Annals of Statistics}, {\bf 41},
+  2905--2947.
+
+\end{thebibliography}
