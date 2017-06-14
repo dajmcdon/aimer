@@ -278,14 +278,21 @@ arma::colvec AIMER(arma::mat X, arma::colvec y,
     MatrixInteger parti = partition(X, xt, t);
     arma::mat Xnew = parti.matrix;
     arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
+    if(F.n_cols > F.n_rows){
+        return arma::zeros<arma::colvec>(1);  //error
+    }
     arma::mat UF = arma::zeros<arma::mat>(F.n_rows, d + 7);
     arma::vec SF = arma::zeros<arma::vec>(d + 7);
     arma::mat VF = arma::zeros<arma::mat>(d + 7, F.n_cols);
     VF.col(0) = arma::randn(VF.n_rows);
-    //arma::svd(UF, SF, VF, F);                        //use this line for the old method
-    int isError = irlb(F.memptr(), F.n_rows, F.n_cols, d, SF.memptr(), UF.memptr(), VF.memptr());   //use this line for the new method
-    if(isError != 0){
-        return arma::zeros<arma::colvec>(1);
+    if((F.n_cols < (d + 7)) || (d > (0.5*F.n_cols))){
+        arma::svd(UF, SF, VF, F);                        //full svd
+    }
+    else{
+        int isError = irlb(F.memptr(), F.n_rows, F.n_cols, d, SF.memptr(), UF.memptr(), VF.memptr());   //partial svd
+        if(isError != 0){
+            return arma::zeros<arma::colvec>(1); //error
+        }
     }
     arma::mat Vd = UF.cols(0, d - 1);
     arma::vec Sd;
