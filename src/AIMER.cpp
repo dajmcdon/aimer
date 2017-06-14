@@ -140,13 +140,7 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
                     }
                 }
                 arma::mat Vd = UF.cols(0, ncomps[j] - 1);
-                arma::vec Sd;
-                if(ncomps[j] < SF.n_elem){
-                    Sd = arma::sqrt(SF.subvec(0, ncomps[j] - 1));
-                }
-                else{
-                    Sd = arma::sqrt(SF);
-                }
+                arma::vec Sd = arma::sqrt(SF.subvec(0, ncomps[j] - 1));
                 arma::mat VSInv = arma::zeros<arma::mat>(Vd.n_rows, Sd.n_elem);
                 double sinv;
                 for(int l = 0; l < VSInv.n_cols; l++){    //efficiently multiplys a diagonal matrix
@@ -233,13 +227,7 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
                     }
                 }
                 arma::mat Vd = UF.cols(0, ncomps[j] - 1);
-                arma::vec Sd;
-                if(ncomps[j] < SF.n_elem){
-                    Sd = arma::sqrt(SF.subvec(0, ncomps[j] - 1));
-                }
-                else{
-                    Sd = arma::sqrt(SF);
-                }
+                arma::vec Sd = arma::sqrt(SF.subvec(0, ncomps[j] - 1));
                 arma::mat VSInv = arma::zeros<arma::mat>(Vd.n_rows, Sd.n_elem);
                 double sinv;
                 for(int l = 0; l < VSInv.n_cols; l++){    //efficiently multiplies a diagonal matrix
@@ -327,13 +315,7 @@ arma::colvec AIMER(arma::mat X, arma::colvec y,
         }
     }
     arma::mat Vd = UF.cols(0, d - 1);
-    arma::vec Sd;
-    if(d < SF.n_elem){
-        Sd = arma::sqrt(SF.subvec(0, d - 1));
-    }
-    else{
-        Sd = arma::sqrt(SF);
-    }
+    arma::vec Sd = arma::sqrt(SF.subvec(0, d - 1));
     arma::mat VSInv = arma::zeros<arma::mat>(Vd.n_rows, Sd.n_elem);
     double sinv;
     for(int i = 0; i < VSInv.n_cols; i++){   //efficiently multiplies diagonal matrix
