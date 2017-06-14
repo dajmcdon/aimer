@@ -1,5 +1,5 @@
 
-\documentclass[11pt]{article} 
+\documentclass[11pt]{article}
 \usepackage[left=1in,top=1in,right=1in,bottom=1in,nohead]{geometry}
 \usepackage{pdfsync}
 \usepackage{setspace}
@@ -31,25 +31,25 @@ DJM\hfill Possible proof technique \hfill \today \\
 \end{center}
 
 \section{Darren's approach}
-Suppose $\X = UΛV^\top$. Then a plug-in PCR-based estimate of $\beta$
+Suppose $\X = U\Lambda V^\top$. Then a plug-in PCR-based estimate of $\beta$
 is $\tilde\beta_d= V_d\Lambda_d^{-1}U^\top Y$ .
 We can make a plug-in estimate (using the notation from Ding and
 McDonald) $\hat\beta_d= U_d(F )\Lambda_d(F )^{-1}U_d(F )^\top \X^\top
 Y$.  Also, write $U = [U_d\ U_{p-d}]$ to be the decomposition of $U$
-into the first $d$ columns and last $p-d$ 
+into the first $d$ columns and last $p-d$
 columns and write $\tilde{U}_d$ and $\tilde{U}_{̃p-d}$ to indicate
-padding with zeros to give the same dimension as $U$. 
+padding with zeros to give the same dimension as $U$.
 Now, $U_d(F ) \approx V_d$, $\Lambda_d(F )^{-1} \approx \Lambda^{-2}$,
 and $U_d(F )^\top V \approx  [I_d\ 0]$. So, I’ll proceed as usual to distill this
  expression down to these parts\footnote{Needing repeated constant 2
-   for $\norm{a + b}^2 \leq 2(\norm{a}^2 + \norm{b}^2)$.} 
+   for $\norm{a + b}^2 \leq 2(\norm{a}^2 + \norm{b}^2)$.}
  \begin{itemize}
  \item I'm thinking it will be better to do this under the model in the
    paper. This means $U_{p-d}=0\Rightarrow R_d=0$, but no harm in
    keeping it around for now.
  \item Rewriting from the beginning:
    \begin{align}
-     \norm{\hat\beta_d-\tilde\beta_d} 
+     \norm{\hat\beta_d-\tilde\beta_d}
      &= \norm{ U_d(F )\Lambda_d(F )^{-1}U_d(F )^\top \X^\top
        Y - V_d\Lambda_d^{-1}U^\top Y}\\
      &= \norm{U_d(F )\Lambda_d(F )^{-1}U_d(F )^\top V\Lambda[U_d\ U_{p-d}]^\top
@@ -112,10 +112,12 @@ and $U_d(F )^\top V \approx  [I_d\ 0]$. So, I’ll proceed as usual to distill t
   $\norm{V_G}_{2,0}=\#\{\norm{V_{j,G}}_2\neq 0\} \leq p_*
   <n<p$. This is a ``row sparsity'' assumption as
   in~\citet{VuLei2013}. It also the corresponds to the set
-  $\mathcal{D} = \{j:\norm{\Lambda_GV_{j,G}}_2\neq 0\}$
+  $\mathcal{D} = \{j:\norm{\Lambda_G V_{j,G}}_2\neq 0\}$
   in~\citet{paul2008preconditioning} via the inequality
   $\norm{\Lambda_GV_{j,G}}_2 \leq
-  \norm{V_{j,G}}_2\norm{\Lambda_G}_2$. Essentially this means that
+  \norm{V_{j,G}}_2\norm{\Lambda_G}_2$.\footnote{Actually, since $\Lambda_G$ is diagonal with
+  positive entries, $\norm{\Lambda_G V_{j,G}}_2=0 \Leftrightarrow V_{j,G}=0$.}
+  Essentially this means that
   only $p_*$ variables actually provide information about $col(V_G)$.
 \item ``Row sparsity'' also matches how we generated data for the
   simulations. Actually, we used more than this: we set $V_{G,j}=0$ for many $j$.
