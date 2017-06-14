@@ -118,11 +118,27 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
             MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);  //      -add comments for for loops
             arma::mat Xnew = parti.matrix;
             arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
-            arma::mat UF;
-            arma::vec SF;
-            arma::mat VF;
-            arma::svd(UF, SF, VF, F);
+            if(F.n_cols > F.n_rows){
+                return Rcpp::List::create(Rcpp::Named("Error") = "F has more columns than rows",
+                                          Rcpp::Named("columns") = F.n_cols,
+                                          Rcpp::Named("rows") = F.n_rows);  //error
+            }
             for(int j = 0; j < ncomps.n_elem; j++){    //tries different number of ncomps[j] largest singular values to use
+                arma::mat UF = arma::zeros<arma::mat>(F.n_rows, ncomps[j] + 7);
+                arma::vec SF = arma::zeros<arma::vec>(ncomps[j] + 7);
+                arma::mat VF = arma::zeros<arma::mat>(ncomps[j] + 7, F.n_cols);
+                VF.col(0) = arma::randn(VF.n_rows);
+                if((F.n_cols < (ncomps[j] + 7)) || (ncomps[j] > (0.5*F.n_cols))){
+                    arma::svd(UF, SF, VF, F);                        //full svd
+                }
+                else{
+                    int isError = irlb(F.memptr(), F.n_rows, F.n_cols, ncomps[j], SF.memptr(), UF.memptr(), VF.memptr());   //partial svd
+                    if(isError != 0){
+                        return Rcpp::List::create(Rcpp::Named("Error") = isError,
+                                                  Rcpp::Named("ncomps") = ncomps[j],
+                                                  Rcpp::Named("Fcolumns") = F.n_cols);
+                    }
+                }
                 arma::mat Vd = UF.cols(0, ncomps[j] - 1);
                 arma::vec Sd;
                 if(ncomps[j] < SF.n_elem){
