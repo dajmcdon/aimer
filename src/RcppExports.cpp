@@ -22,6 +22,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// AIMER
+arma::colvec AIMER(arma::mat X, arma::colvec y, double t, double b, int d);
+RcppExport SEXP aimer_AIMER(SEXP XSEXP, SEXP ySEXP, SEXP tSEXP, SEXP bSEXP, SEXP dSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type t(tSEXP);
+    Rcpp::traits::input_parameter< double >::type b(bSEXP);
+    Rcpp::traits::input_parameter< int >::type d(dSEXP);
+    rcpp_result_gen = Rcpp::wrap(AIMER(X, y, t, b, d));
+    return rcpp_result_gen;
+END_RCPP
+}
 // findThresholdSel
 Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps, arma::colvec nCovs, int nthresh, int kfold, arma::colvec nCovsSelect, int nthreshSelect);
 RcppExport SEXP aimer_findThresholdSel(SEXP XSEXP, SEXP ySEXP, SEXP ncompsSEXP, SEXP nCovsSEXP, SEXP nthreshSEXP, SEXP kfoldSEXP, SEXP nCovsSelectSEXP, SEXP nthreshSelectSEXP) {
@@ -37,21 +52,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::colvec >::type nCovsSelect(nCovsSelectSEXP);
     Rcpp::traits::input_parameter< int >::type nthreshSelect(nthreshSelectSEXP);
     rcpp_result_gen = Rcpp::wrap(findThresholdSel(X, y, ncomps, nCovs, nthresh, kfold, nCovsSelect, nthreshSelect));
-    return rcpp_result_gen;
-END_RCPP
-}
-// AIMER
-arma::colvec AIMER(arma::mat X, arma::colvec y, double t, double b, int d);
-RcppExport SEXP aimer_AIMER(SEXP XSEXP, SEXP ySEXP, SEXP tSEXP, SEXP bSEXP, SEXP dSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
-    Rcpp::traits::input_parameter< arma::colvec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< double >::type t(tSEXP);
-    Rcpp::traits::input_parameter< double >::type b(bSEXP);
-    Rcpp::traits::input_parameter< int >::type d(dSEXP);
-    rcpp_result_gen = Rcpp::wrap(AIMER(X, y, t, b, d));
     return rcpp_result_gen;
 END_RCPP
 }

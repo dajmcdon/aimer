@@ -154,5 +154,6 @@ findThresholdSelect <- function (X, y, ncomps, nCovs = NULL,
     out$ncomps = as.vector(out$ncomps)
     out$nCovs = as.vector(out$nCovs)
     out$nCovsSelect = as.vector(out$nCovsSelect)
+    out$beta = as.vector(out$beta)
     return(out)
 }

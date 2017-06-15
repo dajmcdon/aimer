@@ -186,6 +186,56 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
 
 
 
+// [[Rcpp::export]]
+arma::colvec AIMER(arma::mat X, arma::colvec y,
+                   double t, double b, int d){
+    arma::colvec xt = arma::abs(marginalRegressionTT(X, y));
+    MatrixInteger parti = partition(X, xt, t);
+    arma::mat Xnew = parti.matrix;
+    arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
+    if(F.n_cols > F.n_rows){
+        return arma::zeros<arma::colvec>(1);  //error
+    }
+    arma::mat UF = arma::zeros<arma::mat>(F.n_rows, d + 7);
+    arma::vec SF = arma::zeros<arma::vec>(d + 7);
+    arma::mat VF = arma::zeros<arma::mat>(d + 7, F.n_cols);
+    VF.col(0) = arma::randn(VF.n_rows);
+    if((F.n_cols < (d + 7)) || (d >= (0.5*F.n_cols))){
+        arma::svd(UF, SF, VF, F);                        //full svd
+    }
+    else{
+        int isError = irlb(F.memptr(), F.n_rows, F.n_cols, d, SF.memptr(), UF.memptr(), VF.memptr());   //partial svd
+        if(isError != 0){
+            return arma::zeros<arma::colvec>(1); //error
+        }
+    }
+    arma::mat Vd = UF.cols(0, d - 1);
+    arma::vec Sd = arma::sqrt(SF.subvec(0, d - 1));
+    arma::mat VSInv = arma::zeros<arma::mat>(Vd.n_rows, Sd.n_elem);
+    double sinv;
+    for(int i = 0; i < VSInv.n_cols; i++){   //efficiently multiplies diagonal matrix
+        sinv = 1/Sd(i);
+        for(int j = 0; j < VSInv.n_rows; j++){
+            VSInv(j, i) = sinv * Vd(j, i);
+        }
+    }
+    arma::mat Ud = Xnew * VSInv;
+    arma::colvec beta = VSInv * trans(Ud) * y;
+    for(int i = 0; i < beta.n_elem; i++){
+        if(beta(i) < b && -1*beta(i) < b){     //abs() only worked for integers
+            beta(i) = 0;
+        }
+    }
+    return beta;
+}
+
+
+
+
+
+
+
+
 //[[Rcpp::export]]
 Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
                               arma::colvec nCovs,
@@ -281,57 +331,18 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
             }
         }
     }
+    double threshold = findThresh(arma::abs(marginalRegressionTT(X, y)), nCovs[bestnthresh]);
+    arma::colvec betas = AIMER(X, y, threshold, 0, ncomps[bestncomp]);
+    double bthresh = findThresh(arma::abs(betas), nCovsSelect[bestnthreshSelect]);
     return Rcpp::List::create(Rcpp::Named("nCov.select.best") = nCovsSelect[bestnthreshSelect],
                               Rcpp::Named("ncomp.best") = ncomps[bestncomp],
                               Rcpp::Named("nCov.best") = nCovs[bestnthresh],
                               Rcpp::Named("ncomps") = ncomps,
                               Rcpp::Named("nCovs") = nCovs,
                               Rcpp::Named("nCovs.select") = nCovsSelect,
+                              Rcpp::Named("threshold") = threshold,
+                              Rcpp::Named("bthreshold") = bthresh,
                               //Rcpp::Named("CVmse") = CVmse,       //Rcpp can't return this
-                              Rcpp::Named("mse") = mse);
-}
-
-
-
-// [[Rcpp::export]]
-arma::colvec AIMER(arma::mat X, arma::colvec y,
-                   double t, double b, int d){
-    arma::colvec xt = arma::abs(marginalRegressionTT(X, y));
-    MatrixInteger parti = partition(X, xt, t);
-    arma::mat Xnew = parti.matrix;
-    arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
-    if(F.n_cols > F.n_rows){
-        return arma::zeros<arma::colvec>(1);  //error
-    }
-    arma::mat UF = arma::zeros<arma::mat>(F.n_rows, d + 7);
-    arma::vec SF = arma::zeros<arma::vec>(d + 7);
-    arma::mat VF = arma::zeros<arma::mat>(d + 7, F.n_cols);
-    VF.col(0) = arma::randn(VF.n_rows);
-    if((F.n_cols < (d + 7)) || (d >= (0.5*F.n_cols))){
-        arma::svd(UF, SF, VF, F);                        //full svd
-    }
-    else{
-        int isError = irlb(F.memptr(), F.n_rows, F.n_cols, d, SF.memptr(), UF.memptr(), VF.memptr());   //partial svd
-        if(isError != 0){
-            return arma::zeros<arma::colvec>(1); //error
-        }
-    }
-    arma::mat Vd = UF.cols(0, d - 1);
-    arma::vec Sd = arma::sqrt(SF.subvec(0, d - 1));
-    arma::mat VSInv = arma::zeros<arma::mat>(Vd.n_rows, Sd.n_elem);
-    double sinv;
-    for(int i = 0; i < VSInv.n_cols; i++){   //efficiently multiplies diagonal matrix
-        sinv = 1/Sd(i);
-        for(int j = 0; j < VSInv.n_rows; j++){
-            VSInv(j, i) = sinv * Vd(j, i);
-        }
-    }
-    arma::mat Ud = Xnew * VSInv;
-    arma::colvec beta = VSInv * trans(Ud) * y;
-    for(int i = 0; i < beta.n_elem; i++){
-        if(beta(i) < b && -1*beta(i) < b){     //abs() only worked for integers
-            beta(i) = 0;
-        }
-    }
-    return beta;
+                              Rcpp::Named("mse") = mse,
+                              Rcpp::Named("beta") = AIMER(X, y, threshold, bthresh, ncomps[bestncomp]));
 }
