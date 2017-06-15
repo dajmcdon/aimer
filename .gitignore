@@ -8,3 +8,4 @@ man
 *.blg
 *.pdfsync
 *.rel
+inst/doc
