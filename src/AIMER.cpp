@@ -332,8 +332,13 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
         }
     }
     double threshold = findThresh(arma::abs(marginalRegressionTT(X, y)), nCovs[bestnthresh]);
-    arma::colvec betas = AIMER(X, y, threshold, 0, ncomps[bestncomp]);
-    double bthresh = findThresh(arma::abs(betas), nCovsSelect[bestnthreshSelect]);
+    arma::colvec beta = AIMER(X, y, threshold, 0, ncomps[bestncomp]);
+    double bthresh = findThresh(arma::abs(beta), nCovsSelect[bestnthreshSelect]);
+    for(int m = 0; m < beta.n_elem; m++){   //sets the remaining betas to zero
+        if(beta(m) < bthresh && -1*beta(m) < bthresh){     //abs() only worked for integers
+            beta(m) = 0;
+        }
+    }
     return Rcpp::List::create(Rcpp::Named("nCov.select.best") = nCovsSelect[bestnthreshSelect],
                               Rcpp::Named("ncomp.best") = ncomps[bestncomp],
                               Rcpp::Named("nCov.best") = nCovs[bestnthresh],
@@ -344,5 +349,5 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
                               Rcpp::Named("bthreshold") = bthresh,
                               //Rcpp::Named("CVmse") = CVmse,       //Rcpp can't return this
                               Rcpp::Named("mse") = mse,
-                              Rcpp::Named("beta") = AIMER(X, y, threshold, bthresh, ncomps[bestncomp]));
+                              Rcpp::Named("beta") = beta);
 }

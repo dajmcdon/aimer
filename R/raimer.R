@@ -26,7 +26,11 @@ raimer <- function(X, y, t, b, d){
   y = as.vector(y)
   y = y - mean(y)
   X = scale(X, scale = FALSE)
-  AIMER(X, y, t, b, d)
+  out = list(beta = as.vector(AIMER(X, y, t, b, d)))
+  out$fitted = X %*% out$beta
+  out$residuals = y - out$fitted
+  class(out) = 'aimer'
+  out
 }
 
 
@@ -140,8 +144,6 @@ findThresholdSelect <- function (X, y, ncomps, nCovs = NULL,
     y = y - mean(y)
     X = scale(X, scale = FALSE)
     indeces = sample(1:nrow(X), nrow(X))
-    X = X[indeces,]
-    y = y[indeces]
     if(is.null(nCovs)){
         nCovs <- round(seq(from=nCovs.min, to=nCovs.max, length.out=nthresh))
     }
@@ -149,11 +151,13 @@ findThresholdSelect <- function (X, y, ncomps, nCovs = NULL,
         nCovs.select <- round(seq(from=nCovs.min.select, to=nCovs.max.select,
                                   length.out=nthresh.select))
     }
-    out = findThresholdSel(X, y, ncomps, nCovs, nthresh, kfold, nCovs.select, nthresh.select)
-    class(out) = 'supervisedPCACV'
+    out = findThresholdSel(X[indeces, ], y[indeces], ncomps, nCovs, nthresh, kfold, nCovs.select, nthresh.select)
+    class(out) = 'aimerCV'
     out$ncomps = as.vector(out$ncomps)
     out$nCovs = as.vector(out$nCovs)
     out$nCovsSelect = as.vector(out$nCovsSelect)
     out$beta = as.vector(out$beta)
+    out$fitted = X %*% out$beta
+    out$residuals = y - out$fitted
     return(out)
 }
