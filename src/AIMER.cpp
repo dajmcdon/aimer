@@ -129,7 +129,7 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
             arma::mat VF = arma::zeros<arma::mat>(mx + 7, F.n_cols);
             VF.col(0) = arma::randn(VF.n_rows);
             if((F.n_cols < (mx + 7)) || (mx >= (0.5*F.n_cols))){
-                arma::svd(UF, SF, VF, F);                        //full svd
+                arma::svd_econ(UF, SF, VF, F);                        //full svd
             }
             else{
                 int isError = irlb(F.memptr(), F.n_rows, F.n_cols, mx, SF.memptr(), UF.memptr(), VF.memptr());   //partial svd
@@ -267,7 +267,7 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
             arma::mat VF = arma::zeros<arma::mat>(mx + 7, F.n_cols);
             VF.col(0) = arma::randn(VF.n_rows);
             if((F.n_cols < (mx + 7)) || (mx >= (0.5*F.n_cols))){
-                arma::svd(UF, SF, VF, F);                        //full svd
+                arma::svd_econ(UF, SF, VF, F);                        //full svd
             }
             else{
                 int isError = irlb(F.memptr(), F.n_rows, F.n_cols, mx, SF.memptr(), UF.memptr(), VF.memptr());   //partial svd

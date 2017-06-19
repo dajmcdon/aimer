@@ -39,7 +39,7 @@ MySvd <- function(x, ncomponent=min(nrow(x), ncol(x))) {
   #         return(list(d = s$d, xmeans=xmeans))
   #     }
 
-  if (ncomponent <= min(nrow(x), ncol(x)) * .5) {
+  if (ncomponent < min(nrow(x), ncol(x)) * .5) {
     s <- irlba::irlba(A=x, nv=ncomponent, nu=ncomponent)
     u <- s$u[,1:ncomponent,drop=FALSE]
     d <- s$d[1:ncomponent]
