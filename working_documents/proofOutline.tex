@@ -1,0 +1,252 @@
+\documentclass[11pt]{article}
+% Include statements
+\usepackage{graphicx}
+\usepackage{amsfonts,amssymb,amsmath,amsthm}
+\usepackage[numbers,square]{natbib}
+\usepackage[left=1in,top=1in,right=1in,bottom=1in,nohead]{geometry}
+\usepackage[all]{xy}
+\usepackage{multirow,rotating,array}
+\usepackage[ruled,lined]{algorithm2e}
+\SetKw{KwSet}{Set}
+%\usepackage{algorithm,algorithmic}
+\usepackage{pdfsync}
+\usepackage{setspace}
+\usepackage{bbm}
+\usepackage{moresize}
+\usepackage{hyperref}
+\hypersetup{backref,colorlinks=true,citecolor=blue,linkcolor=blue,urlcolor=blue}
+\renewcommand{\qedsymbol}{$\blacksquare$}
+
+% Bibliography
+\bibliographystyle{plainnat}
+
+% Theorem environments
+\usepackage{aliascnt}
+
+\newtheorem{theorem}{Theorem}[section]
+
+\newaliascnt{result}{theorem}
+\newtheorem{result}[theorem]{Result}
+\aliascntresetthe{result}
+\providecommand*{\resultautorefname}{Result}
+\newaliascnt{lemma}{theorem}
+\newtheorem{lemma}[lemma]{Lemma}
+\aliascntresetthe{lemma}
+\providecommand*{\lemmaautorefname}{Lemma}
+\newaliascnt{prop}{theorem}
+\newtheorem{proposition}[prop]{Proposition}
+\aliascntresetthe{prop}
+\providecommand*{\propautorefname}{Proposition}
+\newaliascnt{cor}{theorem}
+\newtheorem{corollary}[cor]{Corollary}
+\aliascntresetthe{cor}
+\providecommand*{\corautorefname}{Corollary}
+\newaliascnt{conj}{theorem}
+\newtheorem{conjecture}[conj]{Conjecture}
+\aliascntresetthe{conj}
+\providecommand*{\conjautorefname}{Corollary}
+\newaliascnt{def}{theorem}
+\newtheorem{definition}[def]{Definition}
+\aliascntresetthe{def}
+\providecommand*{\defautorefname}{Definition}
+
+\newtheorem{assumption}{Assumption}
+\renewcommand{\theassumption}{\Alph{assumption}}
+\providecommand*{\assumptionautorefname}{Assumption}
+
+\def\algorithmautorefname{Algorithm}
+\renewcommand*{\figureautorefname}{Figure}%
+\renewcommand*{\tableautorefname}{Table}%
+\renewcommand*{\partautorefname}{Part}%
+\renewcommand*{\chapterautorefname}{Chapter}%
+\renewcommand*{\sectionautorefname}{Section}%
+\renewcommand*{\subsectionautorefname}{Section}%
+\renewcommand*{\subsubsectionautorefname}{Section}% 
+
+
+% Macros
+\def\indep{\perp\!\!\!\perp}
+\newcommand{\given}{\ \vert\ }
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Expect}[1]{\E\left[ #1 \right]}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\lVert #1 \rVert}
+\newcommand{\email}[1]{\href{mailto:#1}{#1}}
+\newcommand{\X}{\mathbb{X}}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\trace}{tr}
+
+
+\begin{document}
+\noindent\textbf{\sc DW
+        \hfill Possible proof technique
+        \hfill \today}
+\rule{6.5in}{1pt}
+\section{Preliminary notation and definitions}
+\begin{itemize}
+\item 
+Let the covariance matrix for $X$ be
+\begin{equation}
+\Sigma 
+= 
+ \begin{bmatrix} 
+ \Sigma_{1} & 0  \\ 0 & \Sigma_2 
+ \end{bmatrix}
+\end{equation}
+%and $\Sigma_{1s} \in \R^{p_{1s} \times p_{1s}}$ for $s = 1,2$.  Let $\S = \{1,\ldots,p_1\}$ and $\S^c = \{1,\ldots,p\} \setminus \S$.  Lastly, we define $\Sigma_\S = [\Sigma_1, 0]^{\top}$
+%to be the first $p_1$ columns of $\Sigma$.
+\item
+$
+X_{ij} = \sum_{m=1}^M \lambda_m^{1/2}\eta_{im} \rho_{jm} + \sigma z_{ij}
+$
+where $\norm{\rho_{m}}_2^2 = 1$ and $\rho_{ m} \equiv \rho_{\cdot m}$, $\langle \rho_m, \rho_{m'} \rangle = 0$ if $m \neq m'$, and $\rho_{jm} = 0$ if $j \geq p_1$.
+\item $\Sigma_1 = \sum_{m=1}^M \lambda_m \rho_m \rho_m^\top + \sigma^2 I_{p_1}$.
+\item $F = \X^{\top}\X_1 = V(F) \Lambda(F) U(F)^{\top}$ (note, I think this reversed order makes much more sense at we are looking at approximating $\X^{\top}\X = VD^2V^{\top}$...)
+\item The regression model: 
+\begin{equation}
+Y_i = \beta_0 + \sum_{m=1}^{\tilde{M}} \beta_m  \eta_{im} + W_i.
+\label{eq:YregModel}
+\end{equation}
+Here, I write $\tilde{M}$ to indicate the this may be different than $M$.  
+\item Lastly, I haven't included any normalization by a function of $n$, which is surely necessary to get convergence.  In particular, the sample covariance would be $n^{-1}\X^{\top}\X$,
+so defining $F \leftarrow n^{-1}F$ would seemingly make sense.
+\end{itemize}
+
+\section{Proof outline/sketch}
+\begin{enumerate}
+\item Show that $v_m(F)$ is close to $\rho_m$ (the PC loadings) and $\lambda_m(F)$ is close to $\lambda_m$
+\begin{enumerate}
+\item This is the topic of the document ``convergenceSingularVectorsValues.pdf''.  We need show that $v_m(F)$ converges to $\rho_m$.  So, perhaps, $v_m(F) = \rho_m + \delta_m$,
+where $\norm{\delta_m}$ is small (note: we need to formalize the connection between bounded $\sin($ canonical angles$)$ of singular vectors and writing them in the fashion.  Perhaps
+the asymptotic expansion is more amenable?)
+
+\end{enumerate}
+
+\item The regression part of the procedure regresses $Y$ onto the PC scores, which are the coordinates in the PC, given by $\hat{u}_m = \X v_m(F) \lambda_m^{-1/2}(F)$.  We need to show that these coordinates aren't too far from the coordinates created by inner product with $\rho_{m'}$:
+\begin{equation}
+\left\langle \sum_{m=1}^M \eta_{im} \rho_{m}, \rho_{m'} \right\rangle = \eta_{i,m'} \lambda_{m'}
+\end{equation}
+\begin{enumerate}
+\item This can be done via inserting the model for $X$ in for $\X$ in the definition of $\hat{u}_k$.
+\begin{equation}
+\X v_k(F) 
+=
+\begin{bmatrix} 
+\sum_{j=1}^p \left(\sum_{m=1}^M \lambda_m^{1/2}\eta_{1m} \rho_{jm} + \sigma z_{1j}\right) v_{jk}(F) \\
+\vdots \\
+\sum_{j=1}^p \left(\sum_{m=1}^M \lambda_m^{1/2}\eta_{nm} \rho_{jm} + \sigma z_{nj}\right)v_{jk}(F)
+\end{bmatrix}
+%=
+%\begin{bmatrix} 
+%\sum_{m=1}^M \eta_{1m} \rho_{m}^\top v_k(F) + \sigma z_{1}^{\top}v_{jk}(F) \\
+%\vdots \\
+%\sum_{m=1}^M \eta_{nm} \rho_{m}^\top v_k(F) + \sigma z_{n}^{\top}v_{jk}(F) 
+%\end{bmatrix}
+=
+\sum_{m=1}^M
+\lambda_m^{1/2}\rho_{m}^\top v_k(F) 
+\begin{bmatrix} 
+ \eta_{1m} \\
+\vdots \\
+ \eta_{nm} 
+\end{bmatrix}
++
+\sigma
+\begin{bmatrix} 
+z_{1}^{\top}v_{k}(F) \\
+\vdots \\
+ z_{n}^{\top}v_{k}(F) 
+\end{bmatrix}.
+\end{equation}
+Using the approximation: $v_k(F) = \rho_k + \delta_k$,
+\begin{equation}
+\eta_{im} \rho_{m}^\top v_k(F)  = \eta_{im} \rho_{m}^\top (\rho_k + \delta_k) 
+= 
+\eta_{im} (\rho_{m}^\top \rho_k + \rho_{m}^\top\delta_k)
+=
+\begin{cases}
+\eta_{ik}(1+\rho_{k}^\top\delta_k) & \textrm{ if } k = m \\
+\eta_{im}(\rho_{m}^\top\delta_k) & \textrm{ if } k \neq m
+\end{cases}
+\end{equation}
+
+\begin{enumerate}
+\item Fix $k \neq m$: 
+\begin{equation}
+\eta_{im}\lambda_m^{1/2}\rho_{m}^\top v_k(F) \lambda_k^{-1/2}(F) = \left(\frac{\lambda_m}{\lambda_k(F)}\right)\eta_{im}(\rho_{m}^\top\delta_k)
+\end{equation}
+So, we need the ratio of eigenvalues to be bounded and then perhaps
+\begin{equation}
+|\rho_{m}^\top\delta_k| \leq \norm{\delta_k}_2 = o(\textrm{some rate}).
+\label{eq:rhoDeltaInnerProduct}
+\end{equation}
+\item Fix $k = m$: 
+\begin{equation}
+\eta_{ik}\lambda_k^{1/2}\rho_{k}^\top v_k(F) \lambda_k^{-1/2}(F) = \left(\frac{\lambda_k}{\lambda_k(F)}\right)\eta_{ik}(1+\rho_{k}^\top\delta_k)
+\end{equation}
+Now, we need the ratio of eigenvalues to go to one (implied by the perturbation bound?) and using the above bound in equation \eqref{eq:rhoDeltaInnerProduct}:
+\begin{equation}
+\left(\frac{\lambda_k}{\lambda_k(F)}\right)\eta_{ik}(1+\rho_{k}^\top\delta_k) \rightarrow \eta_{ik}
+\end{equation}
+
+\end{enumerate}
+\item Combining (i) and (ii) 
+\begin{equation}
+\sum_{m=1}^M
+\lambda_m^{1/2}\rho_{m}^\top v_k(F) 
+\begin{bmatrix} 
+ \eta_{1m} \\
+\vdots \\
+ \eta_{nm} 
+\end{bmatrix}
+=
+\begin{bmatrix} 
+ \eta_{1k} \\
+\vdots \\
+ \eta_{nk} 
+\end{bmatrix}
++ 
+o(\textrm{some other rate})
+\end{equation}
+\item Lastly, we need to show that the measurement error term is bounded:
+\[
+\sigma
+\begin{bmatrix} 
+z_{1}^{\top}v_{k}(F) \\
+\vdots \\
+ z_{n}^{\top}v_{k}(F) 
+\end{bmatrix}.
+\]
+This needs to be addressed with care as $z$ and $v$ are dependent.
+\end{enumerate}
+\item We need
+to write down the form of the estimator: $\hat{U}_{\tilde{M}}^{\top}Y$.  
+Plug in the regression model for $Y$ (equation \eqref{eq:YregModel}):
+\begin{equation}
+\hat\beta_m = \hat{u}_m^{\top}Y = \beta_0  \hat{u}_m^{\top}\mathbf{1} + \sum_{m=1}^{\tilde{M}} \beta_m  \hat{u}_m^{\top}\eta_m +  \hat{u}_m^{\top}W = \textrm{(a) + (b) + (c) }
+\end{equation}
+
+we need to write the regression model for $Y$ in terms of these estimated coordinates:
+\begin{enumerate}
+\item Maybe we can get rid of this via a max norm bound?
+\begin{equation}
+| \hat{u}_m^{\top}\mathbf{1}| \leq  \norm{\hat{u}_m}_1\norm{\mathbf{1}}_{\infty} =  \norm{\hat{u}_m}_1
+\end{equation}
+There should be something like a $n^{-1/2}$ running around.  So, this would require that $\norm{\hat{u}_m}_1 = o(n^{1/2})$, which isn't that likely.
+\item Apply the above results that show that $\hat{u}_m \approx \eta_m$ and hence 
+\[
+ \beta_m  \hat{u}_m^{\top}\eta_m 
+ \approx  \beta_m \norm{\eta_m}_2^2 
+\]
+So, if we have a $n^{-1}$ floating around, then $n^{-1}\norm{\eta_m}_2^2 \rightarrow 1$ and
+\[
+ \beta_m \norm{\eta_m}_2^2  \rightarrow \beta_m.
+\]
+\item $\hat{u}_m$ and $W$ are independent, so this can be shown to be small using a concentration bound (mean zero)
+\end{enumerate}
+\end{enumerate}
+\bibliography{../SPCA.bib}
+\end{document}
+
