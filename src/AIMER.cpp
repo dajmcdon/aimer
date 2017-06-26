@@ -92,7 +92,6 @@ TrainTest ttsplit(arma::mat X, arma::colvec y, int start, int stop){
 
 //not the same as R's quantile function
 double findThresh(arma::colvec t, int num){
-    t = arma::sort(t);
     int index = t.n_elem - num;
     if(index == 0){
         return t[index] - 1; //everything will be above the threshold
@@ -109,12 +108,14 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
     int start = 0;
     int stop;
     double foldSize = ((double) X.n_rows)/((double) kfold);
+    int mx = arma::max(ncomps);
     for(int k = 0; k < kfold; k++){   //for each fold
         stop = (k + 1)*foldSize - 1;
         TrainTest tt = ttsplit(X, y, start, stop);
         arma::colvec tStats = arma::abs(marginalRegressionTT(tt.Xtrain, tt.ytrain));
+        arma::colvec sortedT = arma::sort(tStats);
         for(int i = 0; i < nthresh; i++){   //tries different number of nCovs[i] highest marginal correlations to accept
-            double threshold = findThresh(tStats, nCovs[i]);                 //TODO: (after trying partial svd to speed up) move declarations outside of for loop
+            double threshold = findThresh(sortedT, nCovs[i]);                 //TODO: (after trying partial svd to speed up) move declarations outside of for loop
             MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);  //      -add comments for for loops
             arma::mat Xnew = parti.matrix;
             arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
@@ -123,13 +124,12 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
                                           Rcpp::Named("columns") = F.n_cols,
                                           Rcpp::Named("rows") = F.n_rows);
             }
-            int mx = arma::max(ncomps);
             arma::mat UF = arma::zeros<arma::mat>(F.n_rows, mx + 7);
             arma::vec SF = arma::zeros<arma::vec>(mx + 7);
             arma::mat VF = arma::zeros<arma::mat>(mx + 7, F.n_cols);
             VF.col(0) = arma::randn(VF.n_rows);
             if((F.n_cols < (mx + 7)) || (mx >= (0.5*F.n_cols))){
-                arma::svd(UF, SF, VF, F);                        //full svd
+                arma::svd_econ(UF, SF, VF, F);                        //full svd
             }
             else{
                 int isError = irlb(F.memptr(), F.n_rows, F.n_cols, mx, SF.memptr(), UF.memptr(), VF.memptr());   //partial svd
@@ -247,12 +247,14 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
     int start = 0;
     int stop;
     double foldSize = ((double) X.n_rows)/((double) kfold);
+    int mx = arma::max(ncomps);
     for(int k = 0; k < kfold; k++){    //for each fold
         stop = (k + 1)*foldSize - 1;
         TrainTest tt = ttsplit(X, y, start, stop);
         arma::colvec tStats = arma::abs(marginalRegressionTT(tt.Xtrain, tt.ytrain));
+        arma::colvec sortedT = arma::sort(tStats);
         for(int i = 0; i < nthresh; i++){   //tries different number nCovs[i] highest marginal correlations to use
-            double threshold = findThresh(tStats, nCovs[i]);
+            double threshold = findThresh(sortedT, nCovs[i]);
             MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);
             arma::mat Xnew = parti.matrix;
             arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
@@ -261,13 +263,12 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
                                           Rcpp::Named("columns") = F.n_cols,
                                           Rcpp::Named("rows") = F.n_rows);
             }
-            int mx = arma::max(ncomps);
             arma::mat UF = arma::zeros<arma::mat>(F.n_rows, mx + 7);
             arma::vec SF = arma::zeros<arma::vec>(mx + 7);
             arma::mat VF = arma::zeros<arma::mat>(mx + 7, F.n_cols);
             VF.col(0) = arma::randn(VF.n_rows);
             if((F.n_cols < (mx + 7)) || (mx >= (0.5*F.n_cols))){
-                arma::svd(UF, SF, VF, F);                        //full svd
+                arma::svd_econ(UF, SF, VF, F);                        //full svd
             }
             else{
                 int isError = irlb(F.memptr(), F.n_rows, F.n_cols, mx, SF.memptr(), UF.memptr(), VF.memptr());   //partial svd
@@ -293,7 +294,7 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
                 //Select process
                 for(int l = 0; l < nthreshSelect; l++){    //tries different number nCovsSelect(l) largest betas to keep
                     arma::colvec beta = initialBeta;
-                    double bthresh = findThresh(arma::abs(beta), nCovsSelect(l));
+                    double bthresh = findThresh(arma::sort(arma::abs(beta)), nCovsSelect(l));
                     for(int m = 0; m < beta.n_elem; m++){   //sets the remaining betas to zero
                         if(beta(m) < bthresh && -1*beta(m) < bthresh){     //abs() only worked for integers
                             beta(m) = 0;
@@ -331,9 +332,9 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
             }
         }
     }
-    double threshold = findThresh(arma::abs(marginalRegressionTT(X, y)), nCovs[bestnthresh]);
+    double threshold = findThresh(arma::sort(arma::abs(marginalRegressionTT(X, y))), nCovs[bestnthresh]);
     arma::colvec beta = AIMER(X, y, threshold, 0, ncomps[bestncomp]);
-    double bthresh = findThresh(arma::abs(beta), nCovsSelect[bestnthreshSelect]);
+    double bthresh = findThresh(arma::sort(arma::abs(beta)), nCovsSelect[bestnthreshSelect]);
     for(int m = 0; m < beta.n_elem; m++){   //sets the remaining betas to zero
         if(beta(m) < bthresh && -1*beta(m) < bthresh){     //abs() only worked for integers
             beta(m) = 0;
