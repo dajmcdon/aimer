@@ -26,4 +26,3 @@
 [**On directional regression for dimension reduction**](http://dx.doi.org/10.1198/016214507000000536). Journal of the American Statistical Association, 102(479):997--1008, 2007.
 * A. Globerson and N. Tishby.  
 [**Sufficient dimensionality reduction**](http://www.jmlr.org/papers/v3/globerson03a.html). Journal of Machine Learning Research, 3:1307--1331, 2003.
-
