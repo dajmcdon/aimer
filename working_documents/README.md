@@ -26,3 +26,21 @@
 [**On directional regression for dimension reduction**](http://dx.doi.org/10.1198/016214507000000536). Journal of the American Statistical Association, 102(479):997--1008, 2007.
 * A. Globerson and N. Tishby.  
 [**Sufficient dimensionality reduction**](http://www.jmlr.org/papers/v3/globerson03a.html). Journal of Machine Learning Research, 3:1307--1331, 2003.
+* N. Arcolano and P. J. Wolfe.  
+[**Estimating principal components of covariance matrices using the Nystr\"om method**](https://arxiv.org/abs/1111.6926). 2011.
+* N. Arcolano and P. J. Wolfe.  
+[**Estimating principal components of large covariance matrices using the Nyström method**](http://ai2-s2-pdfs.s3.amazonaws.com/6fdc/488964a1f48b8a18e8d773b24ce8afbdd724.pdf). Acoustics, Speech and Signal Processing (ICASSP), 2011 IEEE International Conference on, 3784--3787, 2011.
+* Y. Yu, T. Wang, and R. J. Samworth.  
+[**A useful variant of the Davis--Kahan theorem for statisticians**](http://dx.doi.org/10.1093/biomet/asv008). Biometrika, 102(2):315--323, 2014.
+* J. Lei, V. Q. Vu, and others.  
+[**Sparsistency and agnostic inference in sparse PCA**](http://dx.doi.org/10.1214/14-AOS1273). The Annals of Statistics, 43(1):299--322, 2015.
+* T. Wang, Q. Berthet, R. J. Samworth, and others.  
+[**Statistical and computational trade-offs in estimation of sparse principal components**](http://dx.doi.org/10.1214/15-AOS1369). The Annals of Statistics, 44(5):1896--1930, 2016.
+* A. Kneip and K. J. Utikal.  
+[**Inference for density families using functional principal component analysis**](http://dx.doi.org/10.1198/016214501753168235). Journal of the American Statistical Association, 96(454):519--542, 2001.
+* W. Yang and H. Xu.  
+[**Streaming Sparse Principal Component Analysis**](http://proceedings.mlr.press/v37/yangd15.html). Proceedings of the 32nd International Conference on Machine Learning, Proceedings of Machine Learning Research, 37, 494--503, 2015.
+* V. Q. Vu, J. Cho, J. Lei, and K. Rohe.  
+[**Fantope Projection and Selection: A near-optimal convex relaxation of sparse PCA**](http://papers.nips.cc/paper/5136-fantope-projection-and-selection-a-near-optimal-convex-relaxation-of-sparse-pca.pdf). Advances in Neural Information Processing Systems 26, 2670--2678, 2013.
+
+
