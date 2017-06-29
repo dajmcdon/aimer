@@ -42,5 +42,3 @@
 [**Streaming Sparse Principal Component Analysis**](http://proceedings.mlr.press/v37/yangd15.html). Proceedings of the 32nd International Conference on Machine Learning, Proceedings of Machine Learning Research, 37, 494--503, 2015.
 * V. Q. Vu, J. Cho, J. Lei, and K. Rohe.  
 [**Fantope Projection and Selection: A near-optimal convex relaxation of sparse PCA**](http://papers.nips.cc/paper/5136-fantope-projection-and-selection-a-near-optimal-convex-relaxation-of-sparse-pca.pdf). Advances in Neural Information Processing Systems 26, 2670--2678, 2013.
-
-
