@@ -1,0 +1,182 @@
+\documentclass[11pt]{article}
+% Include statements
+\usepackage{graphicx}
+\usepackage{amsfonts,amssymb,amsmath,amsthm}
+\usepackage[numbers,square]{natbib}
+\usepackage[left=1in,top=1in,right=1in,bottom=1in,nohead]{geometry}
+\usepackage[all]{xy}
+\usepackage{multirow,rotating,array}
+\usepackage[ruled,lined]{algorithm2e}
+\SetKw{KwSet}{Set}
+%\usepackage{algorithm,algorithmic}
+\usepackage{pdfsync}
+\usepackage{setspace}
+\usepackage{bbm}
+\usepackage{moresize}
+\usepackage{hyperref}
+\hypersetup{backref,colorlinks=true,citecolor=blue,linkcolor=blue,urlcolor=blue}
+\renewcommand{\qedsymbol}{$\blacksquare$}
+
+% Bibliography
+\bibliographystyle{plainnat}
+
+% Theorem environments
+\usepackage{aliascnt}
+
+\newtheorem{theorem}{Theorem}[section]
+
+\newaliascnt{result}{theorem}
+\newtheorem{result}[theorem]{Result}
+\aliascntresetthe{result}
+\providecommand*{\resultautorefname}{Result}
+\newaliascnt{lemma}{theorem}
+\newtheorem{lemma}[lemma]{Lemma}
+\aliascntresetthe{lemma}
+\providecommand*{\lemmaautorefname}{Lemma}
+\newaliascnt{prop}{theorem}
+\newtheorem{proposition}[prop]{Proposition}
+\aliascntresetthe{prop}
+\providecommand*{\propautorefname}{Proposition}
+\newaliascnt{cor}{theorem}
+\newtheorem{corollary}[cor]{Corollary}
+\aliascntresetthe{cor}
+\providecommand*{\corautorefname}{Corollary}
+\newaliascnt{conj}{theorem}
+\newtheorem{conjecture}[conj]{Conjecture}
+\aliascntresetthe{conj}
+\providecommand*{\conjautorefname}{Corollary}
+\newaliascnt{def}{theorem}
+\newtheorem{definition}[def]{Definition}
+\aliascntresetthe{def}
+\providecommand*{\defautorefname}{Definition}
+
+\newtheorem{assumption}{Assumption}
+\renewcommand{\theassumption}{\Alph{assumption}}
+\providecommand*{\assumptionautorefname}{Assumption}
+
+\def\algorithmautorefname{Algorithm}
+\renewcommand*{\figureautorefname}{Figure}%
+\renewcommand*{\tableautorefname}{Table}%
+\renewcommand*{\partautorefname}{Part}%
+\renewcommand*{\chapterautorefname}{Chapter}%
+\renewcommand*{\sectionautorefname}{Section}%
+\renewcommand*{\subsectionautorefname}{Section}%
+\renewcommand*{\subsubsectionautorefname}{Section}% 
+
+
+% Macros
+\def\indep{\perp\!\!\!\perp}
+\newcommand{\given}{\ \vert\ }
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Expect}[1]{\E\left[ #1 \right]}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\lVert #1 \rVert}
+\newcommand{\email}[1]{\href{mailto:#1}{#1}}
+\newcommand{\X}{\mathbb{X}}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\trace}{tr}
+
+\newcommand{\A}{\mathcal{A}}
+\renewcommand{\S}{\mathcal{S}}
+\newcommand{\T}{\mathcal{T}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\x}{\mathbf{x}}
+
+
+\begin{document}
+\noindent\textbf{\sc DW
+        \hfill Possible proof technique
+        \hfill \today}
+\rule{6.5in}{1pt}
+
+\section{Table for matrix sketching results}
+\begin{table}
+\begin{tabular}{l | l | l | l | l | l}
+& Covariance estimation & Eigenvalues & Eigenvectors& PCR ($\hat{Y}$) & PCR ($\hat{\beta}$) \\
+& ($\E\norm{\hat{\Sigma} - \Sigma}_2^2$ or canonical angle) & & &\\
+\hline
+Nystrom &&&&&\\
+CS &&& $CS_3$ &&\\
+Martinsson&&&&&
+\end{tabular}
+\caption{Note that the CS results apply to AIMER.}
+\end{table}
+
+\section{Preliminary notation and definitions}
+\begin{itemize}
+\item $p = \{1,\ldots,p\}$ (it probably won't be confusing to use $p$ as either the number of covariates or the index set, depending on context)
+\item $\A = \{$ of active covariates $\}$
+\item $\S = \{$ nonzero marginal covariance $\}$ (using $\S$ as it is the `selected' model)
+\item $\D = \A \setminus \S$ (to be the difference between active and selected covariates)
+\item $\T = \{$ nonzero $\theta$ $\}$ (using $\T$ due to whatever)
+\end{itemize}
+The underlying machinery of these supervised PCA papers is a suite of estimators of the form $\hat\Sigma_{A,B}$, where $A,B \subseteq \{1,\ldots,p\}$.  In the SPCA
+paper, they choose $\hat\Sigma_{\S,\S}$.  Using $F$ is tantamount of using $\hat\Sigma_{p,\S}$.  This protects somewhat against $\S \subset \A$.  If we had a good estimator of $\T$,
+we would could use $\hat\Sigma_{\T,\S}$, instead.  Perhaps this estimator should in investigated as well...
+
+\section{Showing $CS_3$}
+Using the result that
+\[
+\norm{\hat{v} - v}_2^2 \leq 2 \sin(\angle (\hat{v},v) )
+\]
+we can do the following.  Supposing that 
+$\Sigma = [\tilde{\Sigma}_\S | \tilde{\Sigma}_{\S^c}]$, $F = V(F) D(F) U(F)^{\top}$, $\tilde{\Sigma} = V DU^{\top}$, and $\Sigma = \Theta \Lambda \Theta^{\top}$, then for $k \in \S$,
+\[
+\norm{v_q(F) - \theta_q}_2 \leq  \norm{v_q(F) - v_q}_2 + \norm{v_q - \theta_q}_2 \leq \sqrt{2}\left( \sin(\angle (v_q(F), v_q)) + \sin(\angle (v_q,\theta_q))\right).
+\]
+So, by Yu et al. (2015)\footnote{\url{http://www.statslab.cam.ac.uk/~yy366/index_files/Biometrika-2015-Yu-biomet_asv008.pdf}}, Theorem 3
+\[
+ \sin(\angle (v_q(F), v_q)) 
+ \leq 
+ 2\frac{(2d_{\max} + \norm{F - \tilde{\Sigma}}_{op})\min\{ \norm{F - \tilde{\Sigma}}_{op}, \norm{F - \tilde{\Sigma}}_{F}\}}{\tilde{\delta}_q},
+\]
+where $\tilde{\delta}_q = \min\{d_{q-1} - d_q, d_{q} - d_{q+1}\}$.  This quantity will be controlled by assumption on $\Sigma$ (for instance, $d_{\max} \leq \lambda_{\max}$).
+
+Now, looking at $\norm{F - \tilde{\Sigma}}_{F}^2$ component wise for $j \in p$ and $k \in \S$
+\[
+(F(j,k) - \tilde{\Sigma}(j,k))^2 = (\x_j^{\top}\x_k - \E x_jx_k)^2.
+\]
+Here $\x_j$ is the $j^{th}$ column of $\X$ and $x_j \sim N(0,\Sigma(j,j))$.  This will be controllable via asymptotics or concentration. 
+
+There will be nonzero approximation bias if $\D \neq \emptyset$.  Using the same result as above
+\[
+\sin(\angle (v_q,\theta_q))
+\leq 
+2\frac{(2\lambda_{\max} + \norm{ \tilde{\Sigma} - \Sigma}_{op})\min\{\norm{\tilde{\Sigma} - \Sigma}_{op}, \norm{\tilde{\Sigma} - \Sigma}_{F}\}}{\delta_q},
+\]
+where $\delta_q = \min\{\lambda_{q-1} - \lambda_q, \lambda_{q} - \lambda_{q+1}\}$.  This quantity will again be controlled by assumption on $\Sigma$. 
+
+Now, looking at $\norm{\tilde{\Sigma} - \Sigma}_{F}^2$ component wise for $j,k \in p$
+\[
+( \tilde{\Sigma}(j,k)) - \Sigma(j,k))^2 
+= 
+\begin{cases}
+0 & \textrm{ if } k \in \S \\
+(\sum_{m = 1}^M \lambda_m \theta_j \theta_k)^2  & \textrm{ if } j \in \A,k \in \D \\
+(\sum_{m = 1}^M \lambda_m \theta_j \theta_k  + \sigma^2)^2 & \textrm{ if } j = k \in \D \\
+(\sigma^2)^2 & \textrm{ if } j = k \notin \A \\
+\end{cases}
+\]
+Now, we might make some assumptions about the side of this ``residual'' components, due to a norm constraint on these components implying a norm constraint on the $\beta$'s. 
+So, the result might look like if
+\begin{itemize}
+\item $(\sum_{m = 1}^M \lambda_m \theta_j \theta_k)^2 \leq \gamma_n$
+\item We can estimate $\sigma^2$ well so we consider it known (really, just to simplify things so we can just subtract off the diagonal component before hand)
+\item $\lambda_{\max} \leq C_{\Lambda}$ independent of $n$
+\end{itemize}
+Then
+\[
+\norm{\tilde{\Sigma} - \Sigma}_{F}^2 \leq |\A||\D|\gamma_n,
+\]
+which implies that
+\[
+\sin(\angle (v_q,\theta_q))
+\leq 
+2\frac{(2\lambda_{\max} + |\A||\D|\gamma_n)|\A||\D|\gamma_n}{\delta_q},
+\]
+
+\bibliography{../SPCA.bib}
+\end{document}
+
