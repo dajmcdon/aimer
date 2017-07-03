@@ -121,7 +121,9 @@ $x_j \sim N(0,\Sigma(j,j))$.
 \item $\D = \A \setminus \S$ (to be the difference between active and selected covariates)
 \item $\T = \{$ nonzero $\theta$ $\}$ (using $\T$ due to...  whatever)
 \item For any subsets $A,B$ of $\PP$ and matrix $\mathbb{A}$, the submatrix with rows $A$ and columns $B$ is $\mathbb{A}_{A,B}$
-
+\item A tilde over a matrix will indicate that it has the same nonzero entries as the non-tilde matrix but is padded with zeros
+to facilitate arithmetic operations with other matrices.  The amount of padding will be emphasized by including the matrix dimensions and hence
+the number of zeros can be deduced.
 \end{itemize}
 \subsection{Definitions}
 \begin{itemize}
@@ -183,17 +185,17 @@ Suppose $A \in \R^{m\times n}$ and $\tilde{A} = A + E$.  Also, $U^{\top}AV = \be
 There is a main theorem for bounding the distance between $D$ and $\tilde{D}$:
 
 \begin{theorem}[Mirsky]
-\[
+\begin{equation}
 \norm{\tilde{D} - D} \leq \norm{E}
-\]
+\end{equation}
 where the norm can be any unitarily equivalent norm (e.g. $\norm{\cdot}_2$ or $\norm{\cdot}_F$).
 \label{thm:mirsky}
 \end{theorem}
 
 Ultimately, we will probably use the following $\forall k$:
-\[
+\begin{equation}
 |D_k - \tilde{D}_k | \leq \norm{E}_F
-\]
+\end{equation}
 
 
 
@@ -226,7 +228,7 @@ The nonzero singular values of $F$ and $\tilde{F}$ are identical.
 Writing 
  $E = \tilde{\Sigma}_{\PP,\S} - \tilde{\Sigma}_{\PP,\S} + \Sigma_{\PP,\D} - \tilde{F}$, 
 where 
-\[
+\begin{equation}
 \tilde{\Sigma}_{\PP,\S} 
 = 
 \begin{bmatrix} 
@@ -235,14 +237,14 @@ where
 \end{bmatrix}
 \in
 \R^{p \times |\A|},
-\]  
+\end{equation}  
 then
-\[
+\begin{equation}
 \norm{E}_F \leq \norm{\tilde{\Sigma}_{\PP,\S} - \tilde{F}}_F  + \norm{\Sigma_{\PP,\D} - \tilde{\Sigma}_{\PP,\S}}_F.
-\]
+\end{equation}
 We should have $\E \tilde{F} = n \tilde{\Sigma}_{\PP,\S}$ and hence should be able to control the first term with concentration or
 convergence results.  The second term will have an irreducible error given by
-\[
+\begin{equation}
 \norm{\Sigma_{\PP,\D} - \tilde{\Sigma}_{\PP,\S}}_F^2
 = 
 \sum_{j \in \A, k \in \D} \Sigma_{j,k}^2
@@ -250,8 +252,9 @@ convergence results.  The second term will have an irreducible error given by
  \sum_{j \in \A, k \in \D}\left( \sum_{m=1}^M \lambda_m \theta_{jm}\theta_{km}\right)^2
  \leq
  |\A| |\D| \gamma_n
-\]
-under the assumptions in Section \ref{sec:assumptions}. 
+\end{equation}
+under the assumptions in Section \ref{sec:assumptions}. This can be compared with the irreducible error found in the next
+section, equation \eqref{eq:residualC3}.
 
 \subsection{Old material assuming one latent factor (needs updating)}
 
@@ -261,23 +264,23 @@ under the assumptions in Section \ref{sec:assumptions}.
 The goal here is to extend the results of the SPCA paper by including the possibility in $\Sigma_1$ that we have missed some important features  (hence their $\Sigma_1$ corresponds 
 to our $\Sigma_{11}$.  The model for $X$ is then (here I'm writing/thinking about a single latent factor model, I'm presuming that complexifying that to multi-factor will be a matter
 of notation):
-\[
+\begin{equation}
 X_{ij} = v_i \theta_j + \sigma z_{ij}
-\]
+\end{equation}
 where $v_i,z_{ij}$ are all mutually independent standard normals and $\theta_j \neq 0$ iff $j \in \S$.
 
 \noindent\textbf{End: delete}
 
 Note the expectation of $F$:
-\[
+\begin{equation}
 \E F =
 \begin{bmatrix}
 n \theta\theta^{\top} + n\sigma^2 I \\
 0
 \end{bmatrix}.
-\]
+\end{equation}
 Hence, 
-\[
+\begin{equation}
 E = 
 \begin{bmatrix}
 F - \E F
@@ -287,7 +290,7 @@ F - \E F
 n \theta\theta^{\top} + n\sigma^2 I \\
 0
 \end{bmatrix}.
-\]
+\end{equation}
 So, up to the $n\sigma^2I$ factor, we have to bound the norm difference between a random matrix and it's expectation.
 \begin{align}
 F - \E F -
@@ -314,25 +317,25 @@ n \theta\theta^{\top} + n\sigma^2 I \\
 & = (i) + (ii) + (iii).
 \end{align}
 Now,
-\[
+\begin{equation}
 (i) = 
 (\sum_{i=1}^nv_i^2 -n)
 \begin{bmatrix}
 \theta\theta^{\top}\\
 0
 \end{bmatrix}
-\]
+\end{equation}
 and
-\[
+\begin{equation}
 (iii) = 
 \sigma^2 
 \begin{bmatrix}
 \sum_{i=1}^n Z_{i\S}Z_{i\S}^{\top} - n I \\
 0
 \end{bmatrix},
-\]
+\end{equation}
 where $Z_{i\S} = [z_{ij}]_{j \in \S}$. Similarly, $Z_{i\S^c} = [z_{ij}]_{j \in \S^c}$.  Hence, 
-\[
+\begin{equation}
 (ii) = 
 \sigma \sum_{i=1}^n v_i
 \begin{bmatrix}
@@ -351,44 +354,44 @@ where $Z_{i\S} = [z_{ij}]_{j \in \S}$. Similarly, $Z_{i\S^c} = [z_{ij}]_{j \in \
 0 \\
 Z_{i\S} Z_{i\S^c}^{\top}\\
 \end{bmatrix}.
-\]
+\end{equation}
 Now, concentration results can be used to show $E$ is small in Frobenius norm.  Presumably, we can find some results about spectral norm as well (which would
 probably be more useful as it would allow us to say $|d_j - \tilde{d_j}| \leq \norm{E}_2$ for all $j$).
 
 \section{Showing $CS_3$}
 Using the result that
-\[
+\begin{equation}
 \norm{\hat{v} - v}_2^2 \leq 2 \sin(\angle (\hat{v},v) )
-\]
+\end{equation}
 we can do the following.  Supposing that 
 $\Sigma = [\tilde{\Sigma}_\S | \tilde{\Sigma}_{\S^c}]$, $F = V(F) D(F) U(F)^{\top}$, $\tilde{\Sigma} = V DU^{\top}$, and $\Sigma = \Theta \Lambda \Theta^{\top}$, then for $k \in \S$,
-\[
+\begin{equation}
 \norm{v_q(F) - \theta_q}_2 \leq  \norm{v_q(F) - v_q}_2 + \norm{v_q - \theta_q}_2 \leq \sqrt{2}\left( \sin(\angle (v_q(F), v_q)) + \sin(\angle (v_q,\theta_q))\right).
-\]
+\end{equation}
 So, by Yu et al. (2015)\footnote{\url{http://www.statslab.cam.ac.uk/~yy366/index_files/Biometrika-2015-Yu-biomet_asv008.pdf}}, Theorem 3
-\[
+\begin{equation}
  \sin(\angle (v_q(F), v_q)) 
  \leq 
  2\frac{(2d_{\max} + \norm{F - \tilde{\Sigma}}_{op})\min\{ \norm{F - \tilde{\Sigma}}_{op}, \norm{F - \tilde{\Sigma}}_{F}\}}{\tilde{\delta}_q},
-\]
+\end{equation}
 where $\tilde{\delta}_q = \min\{d_{q-1} - d_q, d_{q} - d_{q+1}\}$, which will be controlled by assumption on $\Sigma$ (for instance, $d_{\max} \leq \lambda_{\max}$).
 
 Now, looking at $\norm{F - \tilde{\Sigma}}_{F}^2$ component wise for $j \in p$ and $k \in \S$
-\[
+\begin{equation}
 (F(j,k) - \tilde{\Sigma}(j,k))^2 = (\x_j^{\top}\x_k - \E x_jx_k)^2.
-\]
+\end{equation}
 This will be controllable via asymptotics or concentration. 
 
 There will be nonzero approximation bias if $\D \neq \emptyset$.  Using the same result as above
-\[
+\begin{equation}
 \sin(\angle (v_q,\theta_q))
 \leq 
 2\frac{(2\lambda_{\max} + \norm{ \tilde{\Sigma} - \Sigma}_{op})\min\{\norm{\tilde{\Sigma} - \Sigma}_{op}, \norm{\tilde{\Sigma} - \Sigma}_{F}\}}{\delta_q},
-\]
+\end{equation}
 where $\delta_q = \min\{\lambda_{q-1} - \lambda_q, \lambda_{q} - \lambda_{q+1}\}$.  This quantity will again be controlled by assumption on $\Sigma$. 
 
 Now, looking at $\norm{\tilde{\Sigma} - \Sigma}_{F}^2$ component wise for $j,k \in \PP$
-\[
+\begin{equation}
 ( \tilde{\Sigma}(j,k)) - \Sigma(j,k))^2 
 = 
 \begin{cases}
@@ -397,19 +400,20 @@ Now, looking at $\norm{\tilde{\Sigma} - \Sigma}_{F}^2$ component wise for $j,k \
 (\sum_{m = 1}^M \lambda_m \theta_{jm} \theta_{km}  + \sigma^2)^2 & \textrm{ if } j = k \in \D \\
 (\sigma^2)^2 & \textrm{ if } j = k \notin \A \\
 \end{cases}
-\]
+\end{equation}
 Now, we might make some assumptions about the size of this ``residual'' components, due to a norm constraint on these components implying a norm constraint on the $\beta$'s. 
 
 Some such assumptions are listed in Section \ref{sec:assumptions}. Then
-\[
+\begin{equation}
 \norm{\tilde{\Sigma} - \Sigma}_{F}^2 \leq |\A||\D|\gamma_n,
-\]
+\label{eq:residualC3}
+\end{equation}
 which implies that
-\[
+\begin{equation}
 \sin(\angle (v_q,\theta_q))
 \leq 
 2\frac{(2\lambda_{\max} + |\A||\D|\gamma_n)|\A||\D|\gamma_n}{\delta_q},
-\]
+\end{equation}
 
 \section{Showing $CS_5$}
 %\section{Proof outline/sketch}
@@ -509,14 +513,14 @@ Now, we need the ratio of eigenvalues to go to one (implied by the perturbation 
 o(\textrm{some other rate})
 \end{equation}
 \item Lastly, we need to show that the measurement error term is bounded:
-\[
+\begin{equation}
 \sigma
 \begin{bmatrix} 
 z_{1}^{\top}v_{k}(F) \\
 \vdots \\
  z_{n}^{\top}v_{k}(F) 
 \end{bmatrix}.
-\]
+\end{equation}
 This needs to be addressed with care as $z$ and $v$ are dependent.
 \end{enumerate}
 \item We need
@@ -534,14 +538,14 @@ we need to write the regression model for $Y$ in terms of these estimated coordi
 \end{equation}
 There should be something like a $n^{-1/2}$ running around.  So, this would require that $\norm{\hat{u}_m}_1 = o(n^{1/2})$, which isn't that likely.
 \item Apply the above results that show that $\hat{u}_m \approx \eta_m$ and hence 
-\[
+\begin{equation}
  \beta_m  \hat{u}_m^{\top}\eta_m 
  \approx  \beta_m \norm{\eta_m}_2^2 
-\]
+\end{equation}
 So, if we have a $n^{-1}$ floating around, then $n^{-1}\norm{\eta_m}_2^2 \rightarrow 1$ and
-\[
+\begin{equation}
  \beta_m \norm{\eta_m}_2^2  \rightarrow \beta_m.
-\]
+\end{equation}
 \item $\hat{u}_m$ and $W$ are independent, so this can be shown to be small using a concentration bound (mean zero)
 \end{enumerate}
 \end{enumerate}
