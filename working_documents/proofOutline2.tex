@@ -83,6 +83,7 @@
 \newcommand{\T}{\mathcal{T}}
 \newcommand{\D}{\mathcal{D}}
 \newcommand{\x}{\mathbf{x}}
+\newcommand{\PP}{\mathcal{P}}
 
 
 \begin{document}
@@ -90,31 +91,269 @@
         \hfill Possible proof technique
         \hfill \today}
 \rule{6.5in}{1pt}
+\tableofcontents
+\newpage
 
 \section{Table for matrix sketching results}
-\begin{table}
+\begin{table}[!h]
 \begin{tabular}{l | l | l | l | l | l}
 & Covariance estimation & Eigenvalues & Eigenvectors& PCR ($\hat{Y}$) & PCR ($\hat{\beta}$) \\
 & ($\E\norm{\hat{\Sigma} - \Sigma}_2^2$ or canonical angle) & & &\\
 \hline
 Nystrom &&&&&\\
-CS &&& $CS_3$ &&\\
+CS && $CS_2$ & $CS_3$ && $CS_5$\\
 Martinsson&&&&&
 \end{tabular}
 \caption{Note that the CS results apply to AIMER.}
 \end{table}
 
-\section{Preliminary notation and definitions}
+
+
+\section{Preliminary notation, definitions, and statistical model}
+\subsection{Notation}
 \begin{itemize}
-\item $p = \{1,\ldots,p\}$ (it probably won't be confusing to use $p$ as either the number of covariates or the index set, depending on context)
+\item $\X \in \R^{n\times p}$
+\item $\x_j = [X_{i1}, \ldots, X_{ip}]^{\top} \in \R^{p}$ is the $j^{th}$ column of $\X$ and an i.i.d. sample from 
+$x_j \sim N(0,\Sigma(j,j))$.
+\item $\PP = \{1,\ldots,p\}$ 
 \item $\A = \{$ of active covariates $\}$
 \item $\S = \{$ nonzero marginal covariance $\}$ (using $\S$ as it is the `selected' model)
 \item $\D = \A \setminus \S$ (to be the difference between active and selected covariates)
-\item $\T = \{$ nonzero $\theta$ $\}$ (using $\T$ due to whatever)
+\item $\T = \{$ nonzero $\theta$ $\}$ (using $\T$ due to...  whatever)
+\item For any subsets $A,B$ of $\PP$ and matrix $\mathbb{A}$, the submatrix with rows $A$ and columns $B$ is $\mathbb{A}_{A,B}$
+
 \end{itemize}
-The underlying machinery of these supervised PCA papers is a suite of estimators of the form $\hat\Sigma_{A,B}$, where $A,B \subseteq \{1,\ldots,p\}$.  In the SPCA
-paper, they choose $\hat\Sigma_{\S,\S}$.  Using $F$ is tantamount of using $\hat\Sigma_{p,\S}$.  This protects somewhat against $\S \subset \A$.  If we had a good estimator of $\T$,
-we would could use $\hat\Sigma_{\T,\S}$, instead.  Perhaps this estimator should in investigated as well...
+\subsection{Definitions}
+\begin{itemize}
+\item
+The underlying machinery of these supervised PCA papers is a suite of estimators of the form $\hat\Sigma_{A,B}$, where $A,B \subseteq \PP$.  In the SPCA
+paper, they choose $\hat\Sigma_{\S,\S}$.  Using $F$ is tantamount to using $\hat\Sigma_{\PP,\S}$.  This protects somewhat against $\S \subset \A$.  If we had a good estimator of $\T$
+we would/could use $\hat\Sigma_{\T,\S}$ instead.  Perhaps this estimator should be investigated as well...
+
+\item $F = \X^{\top}\X_1 = V(F) \Lambda(F) U(F)^{\top}$ (note, I think this reversed order makes much more sense at we are looking at approximating $\X^{\top}\X = VD^2V^{\top}$...)
+I haven't included any normalization by a function of $n$, which is surely necessary to get convergence.  In particular, the sample covariance would be $n^{-1}\X^{\top}\X$,
+so defining $F \leftarrow n^{-1}F$ would seemingly make sense.
+\end{itemize}
+
+
+
+
+\subsection{Model}
+\begin{itemize}
+\item 
+Let the covariance matrix for $X$ be
+\begin{equation}
+\Sigma 
+= 
+ \begin{bmatrix} 
+ \Sigma_{1} & 0  \\ 0 & \Sigma_2 
+ \end{bmatrix},
+\end{equation}
+where $\Sigma_{1} \equiv \Sigma_{\A,\A} = \Theta \Lambda \Theta^{\top} + \sigma^2I = \sum_{m=1}^M \lambda_m \theta_m \theta_m^\top + \sigma^2 I$.  
+This should be equivalent to the model in the next bullet if $\Sigma_2 = \sigma^2 I$.  We can probably generalize
+this model to let $\Sigma_2$ have its own eigenvector structure (with eigenvalues strictly smaller than $\Lambda$.
+\item
+$
+X_{ij} = \sum_{m=1}^M \lambda_m^{1/2}\eta_{im} \theta_{jm} + \sigma z_{ij}
+$
+where $\norm{\theta_{m}}_2^2 = 1$ and $\theta_{ m} \equiv \theta_{\cdot m}$, $\langle \theta_m, \theta_{m'} \rangle = 0$ if $m \neq m'$, and $\theta_{jm} = 0$ if $j \notin \A$.  All $z_{ij}$ and $\eta_{im}$ are standard normals and mutually independent.
+\item The regression model: 
+\begin{equation}
+Y_i = \beta_0 + \sum_{m=1}^{\tilde{M}} \beta_m  \eta_{im} + W_i.
+\label{eq:YregModel}
+\end{equation}
+Here, I write $\tilde{M}$ to indicate the this may be different than $M$.  
+\end{itemize}
+
+\subsection{Assumptions}
+\label{sec:assumptions}
+
+\begin{itemize}
+\item $(\sum_{m = 1}^M \lambda_m \theta_{jm} \theta_{km})^2 \leq \gamma_n$ for $k \in \D$.
+\item We can estimate $\sigma^2$ well so we consider it known (really, just to simplify things so we can just subtract off the diagonal component before hand)
+\item $\lambda_{\max} \leq C_{\Lambda}$ independent of $n$
+\item Probably eventually will need to codify the rates for size of some of the above sets (e.g. $|\A| \asymp a_n$)
+\end{itemize}
+
+\newpage
+
+\section{Showing $CS_2$}
+\subsection{Overview}
+Suppose $A \in \R^{m\times n}$ and $\tilde{A} = A + E$.  Also, $U^{\top}AV = \begin{bmatrix} D \\ 0 \end{bmatrix}$ and $\tilde{U}^{\top}\tilde{A}\tilde{V} = \begin{bmatrix} \tilde{D} \\ 0 \end{bmatrix}$.
+There is a main theorem for bounding the distance between $D$ and $\tilde{D}$:
+
+\begin{theorem}[Mirsky]
+\[
+\norm{\tilde{D} - D} \leq \norm{E}
+\]
+where the norm can be any unitarily equivalent norm (e.g. $\norm{\cdot}_2$ or $\norm{\cdot}_F$).
+\label{thm:mirsky}
+\end{theorem}
+
+Ultimately, we will probably use the following $\forall k$:
+\[
+|D_k - \tilde{D}_k | \leq \norm{E}_F
+\]
+
+
+
+\subsection{The result}
+To start, write $M_{ij} :=  \sum_{m=1}^M \lambda_m^{1/2}\eta_{im} \theta_{jm}$.  Then $M_{ij} = 0$ if $j \notin \A$.
+\begin{align}
+F & = \left[\sum_{i=1}^n X_{ij} X_{ik}\right]_{j \in \PP, k \in \S}\\
+& = \left[\sum_{i=1}^n(\sum_{m=1}^M \lambda_m^{1/2}\eta_{im} \theta_{jm} + \sigma z_{ij})
+(\sum_{m=1}^M \lambda_m^{1/2}\eta_{im} \theta_{jm} + \sigma z_{ij})\right]_{j \in \PP, k \in \S} \\
+& = 
+\begin{bmatrix}
+\sum_{i=1}^n(M_{ij} + \sigma z_{ij})(M_{ik} + \sigma z_{ik})\\
+\sum_{i=1}^n(\sigma z_{ij})(M_{ik} + \sigma z_{ik})
+\end{bmatrix} \\
+& 
+=
+\begin{bmatrix}
+\sum_{i=1}^n(M_{ij}M_{ik}+ \sigma z_{ij}M_{ik} + \sigma z_{ik}M_{ij} +  \sigma^2 z_{ij}z_{ik})\\
+\sum_{i=1}^n( \sigma z_{ij}M_{ik} +  \sigma^2 z_{ij}z_{ik})
+\end{bmatrix},
+\end{align}
+where the top block has $j \in \A$ and the bottom block has $j \in \A^c$ (this convention will persist for the rest of this proof).
+
+Using the result from Theorem \ref{thm:mirsky}, write 
+$A = \tilde{F}$  and $E = \Sigma_{\PP,\D} - \tilde{F}$, where $\tilde{F} = [F |  0] \in \R^{p \times |\A|}$.
+The nonzero singular values of $F$ and $\tilde{F}$ are identical. 
+ Hence, the approximation error in the estimation of the singular values of $\Sigma_1$  will be encoded
+ in the difference $\Sigma_{\PP,\D} - \tilde{F}$.
+
+Writing 
+ $E = \tilde{\Sigma}_{\PP,\S} - \tilde{\Sigma}_{\PP,\S} + \Sigma_{\PP,\D} - \tilde{F}$, 
+where 
+\[
+\tilde{\Sigma}_{\PP,\S} 
+= 
+\begin{bmatrix} 
+\Sigma_{\A,\S} & 0 \\
+0 & 0
+\end{bmatrix}
+\in
+\R^{p \times |\A|},
+\]  
+then
+\[
+\norm{E}_F \leq \norm{\tilde{\Sigma}_{\PP,\S} - \tilde{F}}_F  + \norm{\Sigma_{\PP,\D} - \tilde{\Sigma}_{\PP,\S}}_F.
+\]
+We should have $\E \tilde{F} = n \tilde{\Sigma}_{\PP,\S}$ and hence should be able to control the first term with concentration or
+convergence results.  The second term will have an irreducible error given by
+\[
+\norm{\Sigma_{\PP,\D} - \tilde{\Sigma}_{\PP,\S}}_F^2
+= 
+\sum_{j \in \A, k \in \D} \Sigma_{j,k}^2
+= 
+ \sum_{j \in \A, k \in \D}\left( \sum_{m=1}^M \lambda_m \theta_{jm}\theta_{km}\right)^2
+ \leq
+ |\A| |\D| \gamma_n
+\]
+under the assumptions in Section \ref{sec:assumptions}. 
+
+\subsection{Old material assuming one latent factor (needs updating)}
+
+
+\textbf{Start: delete this later.  I'm including it to facilitate later translation.}
+
+The goal here is to extend the results of the SPCA paper by including the possibility in $\Sigma_1$ that we have missed some important features  (hence their $\Sigma_1$ corresponds 
+to our $\Sigma_{11}$.  The model for $X$ is then (here I'm writing/thinking about a single latent factor model, I'm presuming that complexifying that to multi-factor will be a matter
+of notation):
+\[
+X_{ij} = v_i \theta_j + \sigma z_{ij}
+\]
+where $v_i,z_{ij}$ are all mutually independent standard normals and $\theta_j \neq 0$ iff $j \in \S$.
+
+\noindent\textbf{End: delete}
+
+Note the expectation of $F$:
+\[
+\E F =
+\begin{bmatrix}
+n \theta\theta^{\top} + n\sigma^2 I \\
+0
+\end{bmatrix}.
+\]
+Hence, 
+\[
+E = 
+\begin{bmatrix}
+F - \E F
+\end{bmatrix}.
+-
+\begin{bmatrix}
+n \theta\theta^{\top} + n\sigma^2 I \\
+0
+\end{bmatrix}.
+\]
+So, up to the $n\sigma^2I$ factor, we have to bound the norm difference between a random matrix and it's expectation.
+\begin{align}
+F - \E F -
+ \begin{bmatrix}
+n \theta\theta^{\top} + n\sigma^2 I \\
+0
+\end{bmatrix}
+ & =
+\begin{bmatrix}
+\sum_{i=1}^nv_i^2\theta_j\theta_k  - n \theta_j\theta_k\\
+0
+\end{bmatrix}
++
+\begin{bmatrix}
+\sigma \sum_{i=1}^n v_i(z_{ij}\theta_k + z_{ik}\theta_j) \\
+\sigma \sum_{i=1}^n v_iz_{ij}\theta_k + \sigma^2 \sum_{i=1}^n z_{ij}z_{ik}
+\end{bmatrix}
++ \\
+& \qquad + 
+\begin{bmatrix}
+ \sigma^2 \sum_{i=1}^n z_{ij}z_{ik} - n\sigma^2 I \\
+0
+\end{bmatrix} \\
+& = (i) + (ii) + (iii).
+\end{align}
+Now,
+\[
+(i) = 
+(\sum_{i=1}^nv_i^2 -n)
+\begin{bmatrix}
+\theta\theta^{\top}\\
+0
+\end{bmatrix}
+\]
+and
+\[
+(iii) = 
+\sigma^2 
+\begin{bmatrix}
+\sum_{i=1}^n Z_{i\S}Z_{i\S}^{\top} - n I \\
+0
+\end{bmatrix},
+\]
+where $Z_{i\S} = [z_{ij}]_{j \in \S}$. Similarly, $Z_{i\S^c} = [z_{ij}]_{j \in \S^c}$.  Hence, 
+\[
+(ii) = 
+\sigma \sum_{i=1}^n v_i
+\begin{bmatrix}
+ Z_{i\S}\theta^{\top}\\
+ Z_{i\S^c}\theta^{\top}
+\end{bmatrix}
++
+\sigma \sum_{i=1}^n v_i
+\begin{bmatrix}
+\theta Z_{i\S}^{\top}\\
+0
+\end{bmatrix}
++
+\sigma^2 \sum_{i=1}^n 
+\begin{bmatrix}
+0 \\
+Z_{i\S} Z_{i\S^c}^{\top}\\
+\end{bmatrix}.
+\]
+Now, concentration results can be used to show $E$ is small in Frobenius norm.  Presumably, we can find some results about spectral norm as well (which would
+probably be more useful as it would allow us to say $|d_j - \tilde{d_j}| \leq \norm{E}_2$ for all $j$).
 
 \section{Showing $CS_3$}
 Using the result that
@@ -132,13 +371,13 @@ So, by Yu et al. (2015)\footnote{\url{http://www.statslab.cam.ac.uk/~yy366/index
  \leq 
  2\frac{(2d_{\max} + \norm{F - \tilde{\Sigma}}_{op})\min\{ \norm{F - \tilde{\Sigma}}_{op}, \norm{F - \tilde{\Sigma}}_{F}\}}{\tilde{\delta}_q},
 \]
-where $\tilde{\delta}_q = \min\{d_{q-1} - d_q, d_{q} - d_{q+1}\}$.  This quantity will be controlled by assumption on $\Sigma$ (for instance, $d_{\max} \leq \lambda_{\max}$).
+where $\tilde{\delta}_q = \min\{d_{q-1} - d_q, d_{q} - d_{q+1}\}$, which will be controlled by assumption on $\Sigma$ (for instance, $d_{\max} \leq \lambda_{\max}$).
 
 Now, looking at $\norm{F - \tilde{\Sigma}}_{F}^2$ component wise for $j \in p$ and $k \in \S$
 \[
 (F(j,k) - \tilde{\Sigma}(j,k))^2 = (\x_j^{\top}\x_k - \E x_jx_k)^2.
 \]
-Here $\x_j$ is the $j^{th}$ column of $\X$ and $x_j \sim N(0,\Sigma(j,j))$.  This will be controllable via asymptotics or concentration. 
+This will be controllable via asymptotics or concentration. 
 
 There will be nonzero approximation bias if $\D \neq \emptyset$.  Using the same result as above
 \[
@@ -148,25 +387,20 @@ There will be nonzero approximation bias if $\D \neq \emptyset$.  Using the same
 \]
 where $\delta_q = \min\{\lambda_{q-1} - \lambda_q, \lambda_{q} - \lambda_{q+1}\}$.  This quantity will again be controlled by assumption on $\Sigma$. 
 
-Now, looking at $\norm{\tilde{\Sigma} - \Sigma}_{F}^2$ component wise for $j,k \in p$
+Now, looking at $\norm{\tilde{\Sigma} - \Sigma}_{F}^2$ component wise for $j,k \in \PP$
 \[
 ( \tilde{\Sigma}(j,k)) - \Sigma(j,k))^2 
 = 
 \begin{cases}
 0 & \textrm{ if } k \in \S \\
-(\sum_{m = 1}^M \lambda_m \theta_j \theta_k)^2  & \textrm{ if } j \in \A,k \in \D \\
-(\sum_{m = 1}^M \lambda_m \theta_j \theta_k  + \sigma^2)^2 & \textrm{ if } j = k \in \D \\
+(\sum_{m = 1}^M \lambda_m \theta_{jm} \theta_{km})^2  & \textrm{ if } j \in \A,k \in \D \\
+(\sum_{m = 1}^M \lambda_m \theta_{jm} \theta_{km}  + \sigma^2)^2 & \textrm{ if } j = k \in \D \\
 (\sigma^2)^2 & \textrm{ if } j = k \notin \A \\
 \end{cases}
 \]
-Now, we might make some assumptions about the side of this ``residual'' components, due to a norm constraint on these components implying a norm constraint on the $\beta$'s. 
-So, the result might look like if
-\begin{itemize}
-\item $(\sum_{m = 1}^M \lambda_m \theta_j \theta_k)^2 \leq \gamma_n$
-\item We can estimate $\sigma^2$ well so we consider it known (really, just to simplify things so we can just subtract off the diagonal component before hand)
-\item $\lambda_{\max} \leq C_{\Lambda}$ independent of $n$
-\end{itemize}
-Then
+Now, we might make some assumptions about the size of this ``residual'' components, due to a norm constraint on these components implying a norm constraint on the $\beta$'s. 
+
+Some such assumptions are listed in Section \ref{sec:assumptions}. Then
 \[
 \norm{\tilde{\Sigma} - \Sigma}_{F}^2 \leq |\A||\D|\gamma_n,
 \]
@@ -177,6 +411,140 @@ which implies that
 2\frac{(2\lambda_{\max} + |\A||\D|\gamma_n)|\A||\D|\gamma_n}{\delta_q},
 \]
 
+\section{Showing $CS_5$}
+%\section{Proof outline/sketch}
+\begin{enumerate}
+\item Show that $v_m(F)$ is close to $\theta_m$ (the PC loadings) and $\lambda_m(F)$ is close to $\lambda_m$
+\begin{enumerate}
+\item This is the topic of the document ``convergenceSingularVectorsValues.pdf''.  We need show that $v_m(F)$ converges to $\theta_m$.  So, perhaps, $v_m(F) = \theta_m + \delta_m$,
+where $\norm{\delta_m}$ is small (note: we need to formalize the connection between bounded $\sin($ canonical angles$)$ of singular vectors and writing them in the fashion.  Perhaps
+the asymptotic expansion is more amenable?)
+
+\end{enumerate}
+
+\item The regression part of the procedure regresses $Y$ onto the PC scores, which are the coordinates in the PC, given by $\hat{u}_m = \X v_m(F) \lambda_m^{-1/2}(F)$.  We need to show that these coordinates aren't too far from the coordinates created by inner product with $\theta_{m'}$:
+\begin{equation}
+\left\langle \sum_{m=1}^M \eta_{im} \theta_{m}, \theta_{m'} \right\rangle = \eta_{i,m'} \lambda_{m'}
+\end{equation}
+\begin{enumerate}
+\item This can be done via inserting the model for $X$ in for $\X$ in the definition of $\hat{u}_k$.
+\begin{equation}
+\X v_k(F) 
+=
+\begin{bmatrix} 
+\sum_{j=1}^p \left(\sum_{m=1}^M \lambda_m^{1/2}\eta_{1m} \theta_{jm} + \sigma z_{1j}\right) v_{jk}(F) \\
+\vdots \\
+\sum_{j=1}^p \left(\sum_{m=1}^M \lambda_m^{1/2}\eta_{nm} \theta_{jm} + \sigma z_{nj}\right)v_{jk}(F)
+\end{bmatrix}
+%=
+%\begin{bmatrix} 
+%\sum_{m=1}^M \eta_{1m} \theta_{m}^\top v_k(F) + \sigma z_{1}^{\top}v_{jk}(F) \\
+%\vdots \\
+%\sum_{m=1}^M \eta_{nm} \theta_{m}^\top v_k(F) + \sigma z_{n}^{\top}v_{jk}(F) 
+%\end{bmatrix}
+=
+\sum_{m=1}^M
+\lambda_m^{1/2}\theta_{m}^\top v_k(F) 
+\begin{bmatrix} 
+ \eta_{1m} \\
+\vdots \\
+ \eta_{nm} 
+\end{bmatrix}
++
+\sigma
+\begin{bmatrix} 
+z_{1}^{\top}v_{k}(F) \\
+\vdots \\
+ z_{n}^{\top}v_{k}(F) 
+\end{bmatrix}.
+\end{equation}
+Using the approximation: $v_k(F) = \theta_k + \delta_k$,
+\begin{equation}
+\eta_{im} \theta_{m}^\top v_k(F)  = \eta_{im} \theta_{m}^\top (\theta_k + \delta_k) 
+= 
+\eta_{im} (\theta_{m}^\top \theta_k + \theta_{m}^\top\delta_k)
+=
+\begin{cases}
+\eta_{ik}(1+\theta_{k}^\top\delta_k) & \textrm{ if } k = m \\
+\eta_{im}(\theta_{m}^\top\delta_k) & \textrm{ if } k \neq m
+\end{cases}
+\end{equation}
+
+\begin{enumerate}
+\item Fix $k \neq m$: 
+\begin{equation}
+\eta_{im}\lambda_m^{1/2}\theta_{m}^\top v_k(F) \lambda_k^{-1/2}(F) = \left(\frac{\lambda_m}{\lambda_k(F)}\right)\eta_{im}(\theta_{m}^\top\delta_k)
+\end{equation}
+So, we need the ratio of eigenvalues to be bounded and then perhaps
+\begin{equation}
+|\theta_{m}^\top\delta_k| \leq \norm{\delta_k}_2 = o(\textrm{some rate}).
+\label{eq:rhoDeltaInnerProduct}
+\end{equation}
+\item Fix $k = m$: 
+\begin{equation}
+\eta_{ik}\lambda_k^{1/2}\theta_{k}^\top v_k(F) \lambda_k^{-1/2}(F) = \left(\frac{\lambda_k}{\lambda_k(F)}\right)\eta_{ik}(1+\theta_{k}^\top\delta_k)
+\end{equation}
+Now, we need the ratio of eigenvalues to go to one (implied by the perturbation bound?) and using the above bound in equation \eqref{eq:rhoDeltaInnerProduct}:
+\begin{equation}
+\left(\frac{\lambda_k}{\lambda_k(F)}\right)\eta_{ik}(1+\theta_{k}^\top\delta_k) \rightarrow \eta_{ik}
+\end{equation}
+
+\end{enumerate}
+\item Combining (i) and (ii) 
+\begin{equation}
+\sum_{m=1}^M
+\lambda_m^{1/2}\theta_{m}^\top v_k(F) 
+\begin{bmatrix} 
+ \eta_{1m} \\
+\vdots \\
+ \eta_{nm} 
+\end{bmatrix}
+=
+\begin{bmatrix} 
+ \eta_{1k} \\
+\vdots \\
+ \eta_{nk} 
+\end{bmatrix}
++ 
+o(\textrm{some other rate})
+\end{equation}
+\item Lastly, we need to show that the measurement error term is bounded:
+\[
+\sigma
+\begin{bmatrix} 
+z_{1}^{\top}v_{k}(F) \\
+\vdots \\
+ z_{n}^{\top}v_{k}(F) 
+\end{bmatrix}.
+\]
+This needs to be addressed with care as $z$ and $v$ are dependent.
+\end{enumerate}
+\item We need
+to write down the form of the estimator: $\hat{U}_{\tilde{M}}^{\top}Y$.  
+Plug in the regression model for $Y$ (equation \eqref{eq:YregModel}):
+\begin{equation}
+\hat\beta_m = \hat{u}_m^{\top}Y = \beta_0  \hat{u}_m^{\top}\mathbf{1} + \sum_{m=1}^{\tilde{M}} \beta_m  \hat{u}_m^{\top}\eta_m +  \hat{u}_m^{\top}W = \textrm{(a) + (b) + (c) }
+\end{equation}
+
+we need to write the regression model for $Y$ in terms of these estimated coordinates:
+\begin{enumerate}
+\item Maybe we can get rid of this via a max norm bound?
+\begin{equation}
+| \hat{u}_m^{\top}\mathbf{1}| \leq  \norm{\hat{u}_m}_1\norm{\mathbf{1}}_{\infty} =  \norm{\hat{u}_m}_1
+\end{equation}
+There should be something like a $n^{-1/2}$ running around.  So, this would require that $\norm{\hat{u}_m}_1 = o(n^{1/2})$, which isn't that likely.
+\item Apply the above results that show that $\hat{u}_m \approx \eta_m$ and hence 
+\[
+ \beta_m  \hat{u}_m^{\top}\eta_m 
+ \approx  \beta_m \norm{\eta_m}_2^2 
+\]
+So, if we have a $n^{-1}$ floating around, then $n^{-1}\norm{\eta_m}_2^2 \rightarrow 1$ and
+\[
+ \beta_m \norm{\eta_m}_2^2  \rightarrow \beta_m.
+\]
+\item $\hat{u}_m$ and $W$ are independent, so this can be shown to be small using a concentration bound (mean zero)
+\end{enumerate}
+\end{enumerate}
 \bibliography{../SPCA.bib}
 \end{document}
 
