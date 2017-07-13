@@ -123,14 +123,45 @@ plot.aimer <- function(object, ...){
 #'@export
 plot.aimerCV <- function(object, ...){
     original = par(ask = TRUE)
-    ggplot2::ggplot(ggplot2::aes(x = object$ncomps, y = object$nCovs) +
-                    ggplot2::geom_tile(ggplot2::aes(fill = object$mse[object$nCovs.select == object$nCov.select.best,,])))
+    MyDF = data.frame(expand.grid(object$ncomps, object$nCovs))
+    best = match(object$nCov.select.best, object$nCovs.select)
+    getColor <- function(coord){
+        object$mse[best, coord[1], coord[2]]
+    }
+    MyDF$col = apply(expand.grid(1:length(object$ncomps), 1:length(object$nCovs)), MARGIN = 1, FUN = getColor)
+    p = ggplot2::ggplot(MyDF, ggplot2::aes_string(x = 'Var1', y = 'Var2', fill = 'col')) +
+            ggplot2::geom_tile() +
+            ggplot2::scale_fill_continuous(low = 'blue', high = 'red', guide = ggplot2::guide_legend(title = 'MSE')) + 
+            ggplot2::xlab("ncomps") + ggplot2::ylab("nCovs") + ggplot2::ggtitle("For Optimal nCov.select")
+    print(p)
 #    image(x = object$ncomps, y = object$nCovs, 
 #          z = object$mse[object$nCovs.select == object$nCov.select.best,,], 
 #          xlab = "ncomps", ylab = "ncovs", main = "for optimal value of nCovs.select")
+    MyDF = data.frame(expand.grid(object$nCovs.select, object$ncomps))
+    best = match(object$nCov.best, object$nCovs)
+    getColor <- function(coord){
+        object$mse[coord[1], coord[2], best]
+    }
+    MyDF$col = apply(expand.grid(1:length(object$nCovs.select), 1:length(object$ncomps)), MARGIN = 1, FUN = getColor)
+    p = ggplot2::ggplot(MyDF, ggplot2::aes_string(x = 'Var1', y = 'Var2', fill = 'col')) +
+        ggplot2::geom_tile() +
+        ggplot2::scale_fill_continuous(low = 'blue', high = 'red', guide = ggplot2::guide_legend(title = 'MSE')) + 
+        ggplot2::xlab("nCovs.select") + ggplot2::ylab("ncomps") + ggplot2::ggtitle("For Optimal nCovs")
+    print(p)
 #    image(x = object$nCovs.select, y = object$ncomps, 
 #          z = object$mse[,,object$nCovs == object$nCov.best], 
 #          xlab = "nCovs.select", ylab = "ncomps", main = "for optimal value of nCovs")
+    MyDF = data.frame(expand.grid(object$nCovs.select, object$nCovs))
+    best = match(object$ncomp.best, object$ncomps)
+    getColor <- function(coord){
+        object$mse[coord[1], best, coord[2]]
+    }
+    MyDF$col = apply(expand.grid(1:length(object$nCovs.select), 1:length(object$nCovs)), MARGIN = 1, FUN = getColor)
+    p = ggplot2::ggplot(MyDF, ggplot2::aes_string(x = 'Var1', y = 'Var2', fill = 'col')) +
+        ggplot2::geom_tile() +
+        ggplot2::scale_fill_continuous(low = 'blue', high = 'red', guide = ggplot2::guide_legend(title = 'MSE')) + 
+        ggplot2::xlab("nCovs.select") + ggplot2::ylab("nCovs") + ggplot2::ggtitle("For Optimal ncomps")
+    print(p)
 #    image(x = object$nCovs.select, y = object$nCovs, 
 #          z = object$mse[,object$ncomps == object$ncomp.best,], 
 #          xlab = "nCovs.select", ylab = "nCovs", main = "for optimal value of ncomps")

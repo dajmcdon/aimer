@@ -13,4 +13,5 @@ NULL
 #' @useDynLib aimer
 #' @importFrom Rcpp sourceCpp
 #' @importFrom Rcpp evalCpp
+#' @import ggplot2
 NULL
