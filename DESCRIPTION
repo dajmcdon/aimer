@@ -25,5 +25,5 @@ Imports: irlba,
     Rcpp, RcppArmadillo
 LinkingTo: Rcpp, RcppArmadillo
 Suggests: knitr,
-    rmarkdown
+    rmarkdown, ggplot2
 VignetteBuilder: knitr

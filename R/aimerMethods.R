@@ -123,14 +123,16 @@ plot.aimer <- function(object, ...){
 #'@export
 plot.aimerCV <- function(object, ...){
     original = par(ask = TRUE)
-    image(x = object$ncomps, y = object$nCovs, 
-          z = object$mse[object$nCovs.select == object$nCov.select.best,,], 
-          xlab = "ncomps", ylab = "ncovs", main = "for optimal value of nCovs.select")
-    image(x = object$nCovs.select, y = object$ncomps, 
-          z = object$mse[,,object$nCovs == object$nCov.best], 
-          xlab = "nCovs.select", ylab = "ncomps", main = "for optimal value of nCovs")
-    image(x = object$nCovs.select, y = object$nCovs, 
-          z = object$mse[,object$ncomps == object$ncomp.best,], 
-          xlab = "nCovs.select", ylab = "nCovs", main = "for optimal value of ncomps")
+    ggplot2::ggplot(ggplot2::aes(x = object$ncomps, y = object$nCovs) +
+                    ggplot2::geom_tile(ggplot2::aes(fill = object$mse[object$nCovs.select == object$nCov.select.best,,])))
+#    image(x = object$ncomps, y = object$nCovs, 
+#          z = object$mse[object$nCovs.select == object$nCov.select.best,,], 
+#          xlab = "ncomps", ylab = "ncovs", main = "for optimal value of nCovs.select")
+#    image(x = object$nCovs.select, y = object$ncomps, 
+#          z = object$mse[,,object$nCovs == object$nCov.best], 
+#          xlab = "nCovs.select", ylab = "ncomps", main = "for optimal value of nCovs")
+#    image(x = object$nCovs.select, y = object$nCovs, 
+#          z = object$mse[,object$ncomps == object$ncomp.best,], 
+#          xlab = "nCovs.select", ylab = "nCovs", main = "for optimal value of ncomps")
     par(original)
 }
