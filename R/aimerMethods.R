@@ -123,6 +123,9 @@ plot.aimer <- function(object, ...){
 #'@export
 plot.aimerCV <- function(object, ...){
     original = par(ask = TRUE)
+    if (!requireNamespace("ggplot2", quietly = TRUE)){
+        stop("This function requires the installation of the ggplot2 package.")
+    }
     MyDF = data.frame(expand.grid(object$ncomps, object$nCovs))
     best = match(object$nCov.select.best, object$nCovs.select)
     getColor <- function(coord){
