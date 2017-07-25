@@ -24,3 +24,8 @@ devtools::install_github('dajmcdon/aimer', build_vignettes = TRUE)
 
 Alternatively, you can clone the repository.
 
+## The working documents folder
+
+This contains ongoing ideas for theoretical justification of the method. It is not necessary (and will be ignored)
+when the package is installed in `R`.
+
