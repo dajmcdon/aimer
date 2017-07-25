@@ -1,6 +1,7 @@
 #' aimer: Amplified, Initially Marginal, Eigenvector Regression
 #'
-#' The aimer package implements the aimer algorithm as described in [[INSERT PAPER NAME HERE]].
+#' The aimer package implements the aimer algorithm as described in
+#' \href{https://doi.org/10.1093/bioinformatics/btx265}{Ding and McDonald (2017)}.
 #' The main goal is to use marginal regression to select a subset of coefficients, use
 #' matrix approximation to estimate the principal components, and then extend those estimates
 #' to the original predictor space before thresholding.

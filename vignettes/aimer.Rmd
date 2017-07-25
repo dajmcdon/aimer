@@ -4,13 +4,13 @@ author: "Lei Ding, Daniel McDonald"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{aimer}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 
-The aimer package implements the aimer algorithm as described in [[INSERT PAPER NAME HERE]]. The code below generates data with 100 rows and 1000 columns, uses cross-validation to select the optimal number of columns, eigenvectors, and threshold for the coefficients, and plots a heatmap of the cross-validation error between the remaining two parameters when one of the three is fixed at the optimal level.
+The aimer package implements the aimer algorithm as described in [Ding and McDonald 2017]( https://doi.org/10.1093/bioinformatics/btx265). The code below generates data with 100 rows and 1000 columns, uses cross-validation to select the optimal number of columns, eigenvectors, and threshold for the coefficients, and plots a heatmap of the cross-validation error between the remaining two parameters when one of the three is fixed at the optimal level.
 ```{r}
 library(aimer)
 dat = factorModelSim1(100,1000,5,c(5,1),2,.1,.1)
