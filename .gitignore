@@ -3,7 +3,6 @@
 .RData
 .Ruserdata
 aimer.Rproj
-man
 .Rbuildignore
 *.blg
 *.pdfsync

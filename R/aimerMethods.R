@@ -7,11 +7,11 @@
 #'
 #'@export
 predict.aimer <- function(object, newdata, ...){
-    newdata = as.matrix(newdata)
-    newdata = scale(newdata, scale = FALSE)
-    indeces = object$beta != 0
-    newdata[,indeces] %*% object$beta[indeces]
-}
+    newdata = as.matrix(newdata)                #TO DO:
+    newdata = scale(newdata, scale = FALSE)     #return column means of origional data to recenter and observation means to add
+    indeces = object$beta != 0                  #Put betas back in order of origional X when returned
+    newdata[,indeces] %*% object$beta[indeces]  #Switch threshold argument t and b to an ncov argument
+}                                               #Store old functions in a folder
 
 
 
