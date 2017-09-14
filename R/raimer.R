@@ -23,12 +23,16 @@ raimer <- function(X, y, t, b, d){
     stop("d must be less than the number of columns of X")
   }
   X = as.matrix(X)
+  meanx = colMeans(X)
   y = as.vector(y)
-  y = y - mean(y)
+  meany = mean(y)
+  y = y - meany
   X = scale(X, scale = FALSE)
   out = list(beta = as.vector(AIMER(X, y, t, b, d)))
   out$fitted = X %*% out$beta
   out$residuals = y - out$fitted
+  out$meany = meany
+  out$meanx = meanx
   class(out) = 'aimer'
   out
 }
@@ -140,8 +144,10 @@ findThresholdSelect <- function (X, y, ncomps, nCovs = NULL,
                                   nthresh.select = ifelse(is.null(nCovs.select), 25, length(nCovs.select)),
                                   kfold = 10){
     X = as.matrix(X)
+    meanx = colMeans(X)
     y = as.vector(y)
-    y = y - mean(y)
+    meany = mean(y)
+    y = y - meany
     X = scale(X, scale = FALSE)
     indeces = sample(1:nrow(X), nrow(X))
     if(is.null(nCovs)){
@@ -159,5 +165,7 @@ findThresholdSelect <- function (X, y, ncomps, nCovs = NULL,
     out$beta = as.vector(out$beta)
     out$fitted = X %*% out$beta
     out$residuals = y - out$fitted
+    out$meanx = meanx
+    out$meany = meany
     return(out)
 }
