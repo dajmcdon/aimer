@@ -103,6 +103,16 @@ double findThresh(arma::colvec t, int num){
     return t[index - 1]; //num elements will be above the threshold
 }
 
+arma::uvec invert(arma::uvec v){
+    int val;
+    arma::uvec output = arma::uvec(v.n_elem);
+    for(int i = 0; i < v.n_elem; i++){
+        val = v(i);
+        output(val) = i;
+    }
+    return output;
+}
+
 // [[Rcpp::export]]
 Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
                        arma::colvec nCovs,
@@ -192,29 +202,29 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
 
 // [[Rcpp::export]]
 arma::colvec AIMER(arma::mat X, arma::colvec y,
-                   double t, double b, int d){  //FIX VARIABLES
+                   double nCovs, double b, int nComps){  //FIX VARIABLES
     arma::colvec xt = arma::abs(marginalRegressionTT(X, y));
-    IndexSplit parti = partition(xt, t);
-    arma::mat Xnew = X.cols(parti.indices);
-    arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.split - 1);
+    arma::uvec indices = arma::sort_index(xt);
+    arma::mat Xnew = X.cols(indices);
+    arma::mat F = arma::trans(Xnew) * Xnew.cols(Xnew.n_cols - nCovs, Xnew.n_cols - 1);
     if(F.n_cols > F.n_rows){
         return arma::zeros<arma::colvec>(1);  //error
     }
-    arma::mat UF = arma::zeros<arma::mat>(F.n_rows, d + 7);
-    arma::vec SF = arma::zeros<arma::vec>(d + 7);
-    arma::mat VF = arma::zeros<arma::mat>(d + 7, F.n_cols);
+    arma::mat UF = arma::zeros<arma::mat>(F.n_rows, nComps + 7);
+    arma::vec SF = arma::zeros<arma::vec>(nComps + 7);
+    arma::mat VF = arma::zeros<arma::mat>(nComps + 7, F.n_cols);
     VF.col(0) = arma::randn(VF.n_rows);
-    if((F.n_cols < (d + 7)) || (d >= (0.5*F.n_cols))){
+    if((F.n_cols < (nComps + 7)) || (nComps >= (0.5*F.n_cols))){
         arma::svd(UF, SF, VF, F);                        //full svd
     }
     else{
-        int isError = irlb(F.memptr(), F.n_rows, F.n_cols, d, SF.memptr(), UF.memptr(), VF.memptr());   //partial svd
+        int isError = irlb(F.memptr(), F.n_rows, F.n_cols, nComps, SF.memptr(), UF.memptr(), VF.memptr());   //partial svd
         if(isError != 0){
             return arma::zeros<arma::colvec>(1); //error
         }
     }
-    arma::mat Vd = UF.cols(0, d - 1);
-    arma::vec Sd = arma::sqrt(SF.subvec(0, d - 1));
+    arma::mat Vd = UF.cols(0, nComps - 1);
+    arma::vec Sd = arma::sqrt(SF.subvec(0, nComps - 1));
     arma::mat VSInv = arma::zeros<arma::mat>(Vd.n_rows, Sd.n_elem);
     double sinv;
     for(int i = 0; i < VSInv.n_cols; i++){   //efficiently multiplies diagonal matrix
@@ -225,12 +235,13 @@ arma::colvec AIMER(arma::mat X, arma::colvec y,
     }
     arma::mat Ud = Xnew * VSInv;
     arma::colvec beta = VSInv * trans(Ud) * y;
+    arma::uvec betaSortedIndices = arma::sort_index(arma::abs(beta));
     for(int i = 0; i < beta.n_elem; i++){
         if(beta(i) < b && -1*beta(i) < b){     //abs() only worked for integers
             beta(i) = 0;
         }
     }
-    beta = beta.elem(parti.indices);
+    beta = beta.elem(invert(indices));
     return beta;
 }
 

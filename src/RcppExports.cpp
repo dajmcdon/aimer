@@ -23,17 +23,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // AIMER
-arma::colvec AIMER(arma::mat X, arma::colvec y, double t, double b, int d);
-RcppExport SEXP aimer_AIMER(SEXP XSEXP, SEXP ySEXP, SEXP tSEXP, SEXP bSEXP, SEXP dSEXP) {
+arma::colvec AIMER(arma::mat X, arma::colvec y, double nCovs, double b, int nComps);
+RcppExport SEXP aimer_AIMER(SEXP XSEXP, SEXP ySEXP, SEXP nCovsSEXP, SEXP bSEXP, SEXP nCompsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
     Rcpp::traits::input_parameter< arma::colvec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< double >::type t(tSEXP);
+    Rcpp::traits::input_parameter< double >::type nCovs(nCovsSEXP);
     Rcpp::traits::input_parameter< double >::type b(bSEXP);
-    Rcpp::traits::input_parameter< int >::type d(dSEXP);
-    rcpp_result_gen = Rcpp::wrap(AIMER(X, y, t, b, d));
+    Rcpp::traits::input_parameter< int >::type nComps(nCompsSEXP);
+    rcpp_result_gen = Rcpp::wrap(AIMER(X, y, nCovs, b, nComps));
     return rcpp_result_gen;
 END_RCPP
 }

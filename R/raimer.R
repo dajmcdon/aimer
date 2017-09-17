@@ -10,10 +10,10 @@
 #'
 #' @export
 raimer <- function(X, y, nCovs, nCovsSelect, nComps){ #FIX VARIABLES
-  if(is.na(nCovs) || is.nan(nCovs) || !is.numeric(nCovs) || nCovs < 0 || nCovs %% 1 != 0){
+  if(is.na(nCovs) || is.nan(nCovs) || !is.numeric(nCovs) || nCovs < 0){
     stop("nCovs must be an integer greater than 0")
   }
-  if(is.na(nCovsSelect) || is.nan(nCovsSelect) || !is.numeric(nCovsSelect) || nCovsSelect < 0 || nCovsSelect %% 1 != 0){
+  if(is.na(nCovsSelect) || is.nan(nCovsSelect) || !is.numeric(nCovsSelect) || nCovsSelect < 0){
     stop("nCovsSelect must be an integer greater than 0")
   }
   if(is.na(nComps) || is.nan(nComps) || !is.numeric(nComps) || nComps < 0 || nComps %% 1 != 0){

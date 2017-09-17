@@ -5,8 +5,8 @@ findThresholdAIMER <- function(X, y, ncomps, nCovs, nthresh, kfold) {
     .Call('aimer_findThresholdAIMER', PACKAGE = 'aimer', X, y, ncomps, nCovs, nthresh, kfold)
 }
 
-AIMER <- function(X, y, t, b, d) {
-    .Call('aimer_AIMER', PACKAGE = 'aimer', X, y, t, b, d)
+AIMER <- function(X, y, nCovs, b, nComps) {
+    .Call('aimer_AIMER', PACKAGE = 'aimer', X, y, nCovs, b, nComps)
 }
 
 findThresholdSel <- function(X, y, ncomps, nCovs, nthresh, kfold, nCovsSelect, nthreshSelect) {
