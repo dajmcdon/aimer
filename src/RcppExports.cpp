@@ -6,22 +6,6 @@
 
 using namespace Rcpp;
 
-// findThresholdAIMER
-Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps, arma::colvec nCovs, int nthresh, int kfold);
-RcppExport SEXP aimer_findThresholdAIMER(SEXP XSEXP, SEXP ySEXP, SEXP ncompsSEXP, SEXP nCovsSEXP, SEXP nthreshSEXP, SEXP kfoldSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
-    Rcpp::traits::input_parameter< arma::colvec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::colvec >::type ncomps(ncompsSEXP);
-    Rcpp::traits::input_parameter< arma::colvec >::type nCovs(nCovsSEXP);
-    Rcpp::traits::input_parameter< int >::type nthresh(nthreshSEXP);
-    Rcpp::traits::input_parameter< int >::type kfold(kfoldSEXP);
-    rcpp_result_gen = Rcpp::wrap(findThresholdAIMER(X, y, ncomps, nCovs, nthresh, kfold));
-    return rcpp_result_gen;
-END_RCPP
-}
 // AIMER
 arma::colvec AIMER(arma::mat X, arma::colvec y, double nCovs, double nCovsSelect, int nComps);
 RcppExport SEXP aimer_AIMER(SEXP XSEXP, SEXP ySEXP, SEXP nCovsSEXP, SEXP nCovsSelectSEXP, SEXP nCompsSEXP) {

@@ -30,39 +30,6 @@ arma::colvec marginalRegressionTT(arma::mat X, arma::colvec y){
     return output;
 }
 
-struct IndexSplit{
-    arma::uvec indices;
-    int split;
-};
-
-IndexSplit partition(arma::colvec xt, double t){
-    arma::uvec indices = arma::regspace<arma::uvec>(0, xt.n_elem - 1);
-    int tail = 0;
-    int temp = 0;
-    for(int lead = 0; lead < xt.n_elem; lead++){
-        if(xt(lead) > t){
-            temp = indices(lead);
-            indices(lead) = indices(tail);
-            indices(tail) = temp;
-            tail++;
-        }
-    }
-    IndexSplit output;
-    output.indices = indices;
-    output.split = tail;
-    return output;
-}
-
-
-struct OUT{
-    int nCovBest;
-    int nCompBest;
-    arma::colvec ncomps;
-    arma::colvec ncovs;
-    arma::mat cvMSE;
-    arma::colvec mse;
-};
-
 struct TrainTest{
     arma::mat Xtrain;
     arma::mat Xtest;
@@ -94,15 +61,6 @@ TrainTest ttsplit(arma::mat X, arma::colvec y, int start, int stop){
     return output;
 }
 
-//not the same as R's quantile function
-double findThresh(arma::colvec t, int num){
-    int index = t.n_elem - num;
-    if(index == 0){
-        return t[index] - 1; //everything will be above the threshold
-    }
-    return t[index - 1]; //num elements will be above the threshold
-}
-
 arma::uvec invert(arma::uvec v){
     int val;
     arma::uvec output = arma::uvec(v.n_elem);
@@ -112,91 +70,6 @@ arma::uvec invert(arma::uvec v){
     }
     return output;
 }
-
-// [[Rcpp::export]]
-Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
-                       arma::colvec nCovs,
-                       int nthresh,
-                       int kfold){
-    arma::cube CVmse = arma::cube(nthresh, ncomps.n_elem, kfold);
-    int start = 0;
-    int stop;
-    double foldSize = ((double) X.n_rows)/((double) kfold);
-    int mx = arma::max(ncomps);
-    for(int k = 0; k < kfold; k++){   //for each fold
-        stop = (k + 1)*foldSize - 1;
-        TrainTest tt = ttsplit(X, y, start, stop);
-        arma::colvec tStats = arma::abs(marginalRegressionTT(tt.Xtrain, tt.ytrain));
-        arma::uvec indices = arma::sort_index(tStats);
-        for(int i = 0; i < nthresh; i++){   //tries different number of nCovs[i] highest marginal correlations to accept
-            arma::mat Xnew = X.cols(indices);
-            arma::mat F = arma::trans(Xnew) * Xnew.cols(Xnew.n_cols - nCovs(i), Xnew.n_cols);
-            if(F.n_cols > F.n_rows){
-                return Rcpp::List::create(Rcpp::Named("Error") = "F has more columns than rows",
-                                          Rcpp::Named("columns") = F.n_cols,
-                                          Rcpp::Named("rows") = F.n_rows);
-            }
-            arma::mat UF = arma::zeros<arma::mat>(F.n_rows, mx + 7);
-            arma::vec SF = arma::zeros<arma::vec>(mx + 7);
-            arma::mat VF = arma::zeros<arma::mat>(mx + 7, F.n_cols);
-            VF.col(0) = arma::randn(VF.n_rows);
-            if((F.n_cols < (mx + 7)) || (mx >= (0.5*F.n_cols))){
-                arma::svd_econ(UF, SF, VF, F);                        //full svd
-            }
-            else{
-                int isError = irlb(F.memptr(), F.n_rows, F.n_cols, mx, SF.memptr(), UF.memptr(), VF.memptr());   //partial svd
-                if(isError != 0){
-                    return Rcpp::List::create(Rcpp::Named("Error") = isError,
-                                              Rcpp::Named("ncomps") = mx,
-                                              Rcpp::Named("Fcolumns") = F.n_cols);
-                }
-            }
-            for(int j = 0; j < ncomps.n_elem; j++){    //tries different number of ncomps[j] largest singular values to use
-                arma::mat Vd = UF.cols(0, ncomps[j] - 1);
-                arma::vec Sd = arma::sqrt(SF.subvec(0, ncomps[j] - 1));
-                arma::mat VSInv = arma::zeros<arma::mat>(Vd.n_rows, Sd.n_elem);
-                double sinv;
-                for(int l = 0; l < VSInv.n_cols; l++){    //efficiently multiplys a diagonal matrix
-                    sinv = 1/Sd(l);
-                    for(int m = 0; m < VSInv.n_rows; m++){
-                        VSInv(m, l) = sinv * Vd(m, l);
-                    }
-                }
-                arma::mat Ud = Xnew * VSInv;
-                arma::colvec beta = VSInv * trans(Ud) * tt.ytrain;
-                arma::mat testX = tt.Xtest.cols(indices);
-                arma::colvec Yhat = testX * beta;
-                CVmse(i, j, k) = arma::mean(arma::square((tt.ytest - Yhat)));
-            }
-        }
-        start = stop + 1;
-    }
-    arma::mat mse = arma::mat(nthresh, ncomps.n_elem);
-    int bestnthresh = 0;
-    int bestncomp = 0;
-    arma::vec temp;
-    temp = CVmse.tube(0,0);
-    double minMSE = arma::mean(temp);
-    for(int i = 0; i < nthresh; i++){     //finds the minimal mse
-        for(int j = 0; j < ncomps.n_elem; j++){
-            temp = CVmse.tube(i, j);
-            mse(i, j) = arma::mean(temp);
-            if(mse(i,j) < minMSE){
-                bestnthresh = i;
-                bestncomp = j;
-                minMSE = mse(i, j);
-            }
-        }
-    }
-    return Rcpp::List::create(Rcpp::Named("nCov.best") = nCovs[bestnthresh],
-                              Rcpp::Named("ncomp.best") = ncomps[bestncomp],
-                              Rcpp::Named("ncomps") = ncomps,
-                              Rcpp::Named("nCovs") = nCovs,
-                              Rcpp::Named("CVmse") = CVmse,
-                              Rcpp::Named("mse") = mse);
-}
-
-
 
 // [[Rcpp::export]]
 arma::colvec AIMER(arma::mat X, arma::colvec y,
@@ -344,22 +217,13 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
             }
         }
     }
-    //double threshold = findThresh(arma::sort(arma::abs(marginalRegressionTT(X, y))), nCovs[bestnthresh]);
     arma::colvec beta = AIMER(X, y, nCovs[bestnthresh], nCovsSelect[bestnthreshSelect], ncomps[bestncomp]);
-    double bthresh = findThresh(arma::sort(arma::abs(beta)), nCovsSelect[bestnthreshSelect]);
-    /*for(int m = 0; m < beta.n_elem; m++){   //sets the remaining betas to zero
-        if(beta(m) < bthresh && -1*beta(m) < bthresh){     //abs() only worked for integers
-            beta(m) = 0;
-        }
-    }*/
     return Rcpp::List::create(Rcpp::Named("nCov.select.best") = nCovsSelect[bestnthreshSelect],
                               Rcpp::Named("ncomp.best") = ncomps[bestncomp],
                               Rcpp::Named("nCov.best") = nCovs[bestnthresh],
                               Rcpp::Named("ncomps") = ncomps,
                               Rcpp::Named("nCovs") = nCovs,
                               Rcpp::Named("nCovs.select") = nCovsSelect,
-                              //Rcpp::Named("threshold") = threshold,
-                              Rcpp::Named("bthreshold") = bthresh,
                               //Rcpp::Named("CVmse") = CVmse,       //Rcpp can't return this
                               Rcpp::Named("mse") = mse,
                               Rcpp::Named("beta") = beta);
