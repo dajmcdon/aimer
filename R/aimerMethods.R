@@ -8,7 +8,7 @@
 #'@export
 predict.aimer <- function(object, newdata, ...){              #TO DO:
     newdata = sweep(as.matrix(newdata), 2, object$meanx)
-    indeces = object$beta != 0                  #Put betas back in order of origional X when returned
+    indeces = object$beta != 0
     newdata[,indeces] %*% object$beta[indeces] + object$meany  #Switch threshold argument t and b to an ncov argument
 }                                               #Store old functions in a folder
                                                 #Delete find threshold aimer
