@@ -6,12 +6,11 @@
 #'@return predicted value vector of length nrow(newdata).
 #'
 #'@export
-predict.aimer <- function(object, newdata, ...){              #TO DO:
+predict.aimer <- function(object, newdata, ...){
     newdata = sweep(as.matrix(newdata), 2, object$meanx)
     indeces = object$beta != 0
-    newdata[,indeces] %*% object$beta[indeces] + object$meany  #Switch threshold argument t and b to an ncov argument
-}                                               #Store old functions in a folder
-                                                #Delete find threshold aimer
+    newdata[,indeces] %*% object$beta[indeces] + object$meany
+}
 
 
 

@@ -4,7 +4,7 @@
 \alias{raimer}
 \title{performs Amplified, Initially Marginal, Eigenvector Regression (AIMER) for fixed t, b, and d}
 \usage{
-raimer(X, y, t, b, d)
+raimer(X, y, nCovs, nCovsSelect, nComps)
 }
 \arguments{
 \item{X}{required, design matrix with dimension (n, p).}
