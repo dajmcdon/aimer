@@ -202,7 +202,7 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
 
 // [[Rcpp::export]]
 arma::colvec AIMER(arma::mat X, arma::colvec y,
-                   double nCovs, double b, int nComps){  //FIX VARIABLES
+                   double nCovs, double nCovsSelect, int nComps){  //FIX VARIABLES
     arma::colvec xt = arma::abs(marginalRegressionTT(X, y));
     arma::uvec indices = arma::sort_index(xt);
     arma::mat Xnew = X.cols(indices);
@@ -235,9 +235,9 @@ arma::colvec AIMER(arma::mat X, arma::colvec y,
     }
     arma::mat Ud = Xnew * VSInv;
     arma::colvec beta = VSInv * trans(Ud) * y;
-    arma::uvec betaSortedIndices = arma::sort_index(arma::abs(beta));
+    arma::uvec betaSortedIndices = invert(arma::sort_index(arma::abs(beta)));
     for(int i = 0; i < beta.n_elem; i++){
-        if(beta(i) < b && -1*beta(i) < b){     //abs() only worked for integers
+        if(betaSortedIndices(i) < (beta.n_elem - nCovsSelect)){     //abs() only worked for integers
             beta(i) = 0;
         }
     }
