@@ -9,18 +9,18 @@
 #'@return coefficient vector of length p.
 #'
 #' @export
-raimer <- function(X, y, t, b, d){ #FIX VARIABLES
-  if(is.na(t) || is.nan(t) || !is.numeric(t) || t < 0){
-    stop("t must be a number greater than 0")
+raimer <- function(X, y, nCovs, nCovsSelect, nComps){ #FIX VARIABLES
+  if(is.na(nCovs) || is.nan(nCovs) || !is.numeric(nCovs) || nCovs < 0 || nCovs %% 1 != 0){
+    stop("nCovs must be an integer greater than 0")
   }
-  if(is.na(b) || is.nan(b) || !is.numeric(b) || b < 0){
-    stop("b must be a number greater than 0")
+  if(is.na(nCovsSelect) || is.nan(nCovsSelect) || !is.numeric(nCovsSelect) || nCovsSelect < 0 || nCovsSelect %% 1 != 0){
+    stop("nCovsSelect must be an integer greater than 0")
   }
-  if(is.na(d) || is.nan(d) || !is.numeric(d) || d < 0 || d %% 1 != 0){
-    stop("d must be an integer greater than 0")
+  if(is.na(nComps) || is.nan(nComps) || !is.numeric(nComps) || nComps < 0 || nComps %% 1 != 0){
+    stop("nComps must be an integer greater than 0")
   }
-  if(d > ncol(X)){
-    stop("d must be less than the number of columns of X")
+  if(nComps > ncol(X)){
+    stop("nComps must be less than the number of columns of X")
   }
   X = as.matrix(X)
   meanx = colMeans(X)
@@ -28,7 +28,7 @@ raimer <- function(X, y, t, b, d){ #FIX VARIABLES
   meany = mean(y)
   y = y - meany
   X = scale(X, scale = FALSE)
-  out = list(beta = as.vector(AIMER(X, y, t, b, d)))
+  out = list(beta = as.vector(AIMER(X, y, nCovs, nCovsSelect, nComps)))
   out$fitted = X %*% out$beta
   out$residuals = y - out$fitted
   out$meany = meany
