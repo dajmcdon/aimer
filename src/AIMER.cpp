@@ -192,7 +192,7 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
 
 // [[Rcpp::export]]
 arma::colvec AIMER(arma::mat X, arma::colvec y,
-                   double t, double b, int d){
+                   double t, double b, int d){  //FIX VARIABLES
     arma::colvec xt = arma::abs(marginalRegressionTT(X, y));
     IndexSplit parti = partition(xt, t);
     arma::mat Xnew = X.cols(parti.indices);

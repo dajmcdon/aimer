@@ -9,7 +9,7 @@
 #'@return coefficient vector of length p.
 #'
 #' @export
-raimer <- function(X, y, t, b, d){
+raimer <- function(X, y, t, b, d){ #FIX VARIABLES
   if(is.na(t) || is.nan(t) || !is.numeric(t) || t < 0){
     stop("t must be a number greater than 0")
   }
