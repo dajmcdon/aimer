@@ -30,22 +30,26 @@ arma::colvec marginalRegressionTT(arma::mat X, arma::colvec y){
     return output;
 }
 
-struct MatrixInteger{
-    arma::mat matrix;
-    int num;
+struct IndexSplit{
+    arma::uvec indices;
+    int split;
 };
 
-MatrixInteger partition(arma::mat X, arma::colvec xt, double t){
+IndexSplit partition(arma::colvec xt, double t){
+    arma::uvec indices = arma::regspace<arma::uvec>(0, xt.n_elem - 1);
     int tail = 0;
+    int temp = 0;
     for(int lead = 0; lead < xt.n_elem; lead++){
         if(xt(lead) > t){
-            X.swap_cols(lead, tail);
+            temp = indices(lead);
+            indices(lead) = indices(tail);
+            indices(tail) = temp;
             tail++;
         }
     }
-    MatrixInteger output;
-    output.matrix = X;
-    output.num = tail;
+    IndexSplit output;
+    output.indices = indices;
+    output.split = tail;
     return output;
 }
 
@@ -116,9 +120,9 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
         arma::colvec sortedT = arma::sort(tStats);
         for(int i = 0; i < nthresh; i++){   //tries different number of nCovs[i] highest marginal correlations to accept
             double threshold = findThresh(sortedT, nCovs[i]);                 //TODO: (after trying partial svd to speed up) move declarations outside of for loop
-            MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);  //      -add comments for for loops
-            arma::mat Xnew = parti.matrix;
-            arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
+            IndexSplit parti = partition(tStats, threshold);  //      -add comments for for loops
+            arma::mat Xnew = X.cols(parti.indices);
+            arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.split - 1);
             if(F.n_cols > F.n_rows){
                 return Rcpp::List::create(Rcpp::Named("Error") = "F has more columns than rows",
                                           Rcpp::Named("columns") = F.n_cols,
@@ -152,7 +156,7 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
                 }
                 arma::mat Ud = Xnew * VSInv;
                 arma::colvec beta = VSInv * trans(Ud) * tt.ytrain;
-                arma::mat testX = partition(tt.Xtest, tStats, threshold).matrix;
+                arma::mat testX = tt.Xtest.cols(partition(tStats, threshold).indices);
                 arma::colvec Yhat = testX * beta;
                 CVmse(i, j, k) = arma::mean(arma::square((tt.ytest - Yhat)));
             }
@@ -190,9 +194,9 @@ Rcpp::List findThresholdAIMER(arma::mat X, arma::colvec y, arma::colvec ncomps,
 arma::colvec AIMER(arma::mat X, arma::colvec y,
                    double t, double b, int d){
     arma::colvec xt = arma::abs(marginalRegressionTT(X, y));
-    MatrixInteger parti = partition(X, xt, t);
-    arma::mat Xnew = parti.matrix;
-    arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
+    IndexSplit parti = partition(xt, t);
+    arma::mat Xnew = X.cols(parti.indices);
+    arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.split - 1);
     if(F.n_cols > F.n_rows){
         return arma::zeros<arma::colvec>(1);  //error
     }
@@ -226,6 +230,7 @@ arma::colvec AIMER(arma::mat X, arma::colvec y,
             beta(i) = 0;
         }
     }
+    beta = beta.elem(parti.indices);
     return beta;
 }
 
@@ -255,9 +260,9 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
         arma::colvec sortedT = arma::sort(tStats);
         for(int i = 0; i < nthresh; i++){   //tries different number nCovs[i] highest marginal correlations to use
             double threshold = findThresh(sortedT, nCovs[i]);
-            MatrixInteger parti = partition(tt.Xtrain, tStats, threshold);
-            arma::mat Xnew = parti.matrix;
-            arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.num - 1);
+            IndexSplit parti = partition(tStats, threshold);
+            arma::mat Xnew = tt.Xtrain.cols(parti.indices);
+            arma::mat F = arma::trans(Xnew) * Xnew.cols(0, parti.split - 1);
             if(F.n_cols > F.n_rows){
                 return Rcpp::List::create(Rcpp::Named("Error") = "F has more columns than rows",
                                           Rcpp::Named("columns") = F.n_cols,
@@ -301,7 +306,7 @@ Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps,
                         }
                     }
                     //no straightforward way to boolean index, so I use the whole test matrix and beta vector with zeros.
-                    arma::mat testX = partition(tt.Xtest, tStats, threshold).matrix;
+                    arma::mat testX = tt.Xtest.cols(partition(tStats, threshold).indices);
                     arma::colvec Yhat = testX * beta;
                     if(k == 0){
                         CVmse(l, j, i) = arma::colvec(kfold);
