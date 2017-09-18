@@ -11,11 +11,11 @@ raimer(X, y, nCovs, nCovsSelect, nComps)
 
 \item{y}{required, response vector with dimension n.}
 
-\item{t}{required, threshold for marginal coefficients.}
+\item{nCovs}{required, number of highest marginally correlated covariates to use.}
 
-\item{b}{required, threshold for output coefficients.}
+\item{nCovsSelect}{required, desired number of non-zero coefficients.}
 
-\item{d}{required, number of principal components.}
+\item{nComps}{required, number of principal components.}
 }
 \value{
 coefficient vector of length p.
