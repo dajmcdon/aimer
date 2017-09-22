@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // AIMER
 arma::colvec AIMER(arma::mat X, arma::colvec y, double nCovs, double nCovsSelect, int nComps);
-RcppExport SEXP aimer_AIMER(SEXP XSEXP, SEXP ySEXP, SEXP nCovsSEXP, SEXP nCovsSelectSEXP, SEXP nCompsSEXP) {
+RcppExport SEXP _aimer_AIMER(SEXP XSEXP, SEXP ySEXP, SEXP nCovsSEXP, SEXP nCovsSelectSEXP, SEXP nCompsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -23,7 +23,7 @@ END_RCPP
 }
 // findThresholdSel
 Rcpp::List findThresholdSel(arma::mat X, arma::colvec y, arma::colvec ncomps, arma::colvec nCovs, int nthresh, int kfold, arma::colvec nCovsSelect, int nthreshSelect);
-RcppExport SEXP aimer_findThresholdSel(SEXP XSEXP, SEXP ySEXP, SEXP ncompsSEXP, SEXP nCovsSEXP, SEXP nthreshSEXP, SEXP kfoldSEXP, SEXP nCovsSelectSEXP, SEXP nthreshSelectSEXP) {
+RcppExport SEXP _aimer_findThresholdSel(SEXP XSEXP, SEXP ySEXP, SEXP ncompsSEXP, SEXP nCovsSEXP, SEXP nthreshSEXP, SEXP kfoldSEXP, SEXP nCovsSelectSEXP, SEXP nthreshSelectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -38,4 +38,15 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(findThresholdSel(X, y, ncomps, nCovs, nthresh, kfold, nCovsSelect, nthreshSelect));
     return rcpp_result_gen;
 END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_aimer_AIMER", (DL_FUNC) &_aimer_AIMER, 5},
+    {"_aimer_findThresholdSel", (DL_FUNC) &_aimer_findThresholdSel, 8},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_aimer(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

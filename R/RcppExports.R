@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 AIMER <- function(X, y, nCovs, nCovsSelect, nComps) {
-    .Call('aimer_AIMER', PACKAGE = 'aimer', X, y, nCovs, nCovsSelect, nComps)
+    .Call('_aimer_AIMER', PACKAGE = 'aimer', X, y, nCovs, nCovsSelect, nComps)
 }
 
 findThresholdSel <- function(X, y, ncomps, nCovs, nthresh, kfold, nCovsSelect, nthreshSelect) {
-    .Call('aimer_findThresholdSel', PACKAGE = 'aimer', X, y, ncomps, nCovs, nthresh, kfold, nCovsSelect, nthreshSelect)
+    .Call('_aimer_findThresholdSel', PACKAGE = 'aimer', X, y, ncomps, nCovs, nthresh, kfold, nCovsSelect, nthreshSelect)
 }
 

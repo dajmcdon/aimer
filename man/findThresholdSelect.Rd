@@ -15,6 +15,8 @@ findThresholdSelect(X, y, ncomps, nCovs = NULL,
   25, length(nCovs.select)), kfold = 10)
 }
 \arguments{
+\item{X}{required, design matrix with dimension (n,p).}
+
 \item{y}{required, response vector with dimension n.}
 
 \item{ncomps}{required, number of components, can be an integer or
@@ -44,8 +46,6 @@ be tested in selection process, default as 25.}
 
 \item{kfold}{required, the number of k in kfold cross-validation,
 default as 10.}
-
-\item{x}{required, design matrix with dimension (n,p).}
 }
 \value{
 an object of class 'supervisedPCACV', a list with the following components

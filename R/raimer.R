@@ -44,7 +44,7 @@ raimer <- function(X, y, nCovs, nCovsSelect, nComps){ #FIX VARIABLES
 #' find the optimal number of covariates, number of components, and number of covariates
 #' in selection process for AIMER method using kfold cross-validation.
 #'
-#' @param x required, design matrix with dimension (n,p).
+#' @param X required, design matrix with dimension (n,p).
 #' @param y required, response vector with dimension n.
 #' @param ncomps required, number of components, can be an integer or
 #' a vector of integers.

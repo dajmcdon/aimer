@@ -4,10 +4,12 @@
 \alias{plot.aimerCV}
 \title{creates a heatmap of each value of ncomps tested in an aimerCV model}
 \usage{
-\method{plot}{aimerCV}(object, ...)
+\method{plot}{aimerCV}(x, ...)
 }
 \arguments{
-\item{object}{required, an aimerCV model.}
+\item{x}{required, an aimerCV model.}
+
+\item{...}{additional arguments, currently ignored}
 }
 \value{
 void.

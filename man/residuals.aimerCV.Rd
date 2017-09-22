@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{object}{required, an aimerCV model.}
+
+\item{...}{additional arguments, currently ignored.}
 }
 \value{
 residuals of the original data (vector of length n).

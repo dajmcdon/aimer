@@ -4,10 +4,12 @@
 \alias{plot.aimer}
 \title{plots the residuals in terms of the fitted values for an aimer model}
 \usage{
-\method{plot}{aimer}(object, ...)
+\method{plot}{aimer}(x, ...)
 }
 \arguments{
-\item{object}{required, an aimer model.}
+\item{x}{required, an aimer model.}
+
+\item{...}{additional arguments, passed to `plot`}
 }
 \value{
 void.

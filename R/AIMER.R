@@ -1,5 +1,6 @@
 #' aimer: Amplified, Initially Marginal, Eigenvector Regression
 #'
+#'
 #' The aimer package implements the aimer algorithm as described in
 #' \href{https://doi.org/10.1093/bioinformatics/btx265}{Ding and McDonald (2017)}.
 #' The main goal is to use marginal regression to select a subset of coefficients, use
@@ -12,18 +13,23 @@
 #' The package provides functions for estimating the model, choosing tuning parameters, and
 #' generating simulated data as well as methods for prediction, plotting, and extraction.
 #'
-#' @section Estimation functions
-#' list them here
+#' @section Estimation functions:
 #'
-#' @section Selecting tuning parameters
+#' [raimer()] Perform Amplified, Initially Marginal, Eigenvector Regression (AIMER) for fixed t, b, and d.
 #'
-#' @section Simulation
+#' @section Selecting tuning parameters:
+#' [findThresholdSelect()] Find Optimal Threshold for Amplified, Initially Marginal,
+#' Eigenvector Regression (AIMER) With Further Selection
 #'
-#' @section Methods
+#' @section Simulation:
+#'
+#'
+#' @section Methods:
 #'
 #'
 #' @docType package
 #' @name aimer
+#' @md
 NULL
 
 #' @useDynLib aimer
