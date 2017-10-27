@@ -1,3 +1,5 @@
+# Old references
+
 * E. Bair, T. Hastie, D. Paul, and R. Tibshirani.  
 [**Prediction by supervised principal components**](http://dx.doi.org/10.1198/016214505000000628). Journal of the American Statistical Association, 101(473)2006.
 * D. Paul, E. Bair, T. Hastie, and R. Tibshirani.  
@@ -42,3 +44,33 @@
 [**Streaming Sparse Principal Component Analysis**](http://proceedings.mlr.press/v37/yangd15.html). Proceedings of the 32nd International Conference on Machine Learning, Proceedings of Machine Learning Research, 37, 494--503, 2015.
 * V. Q. Vu, J. Cho, J. Lei, and K. Rohe.  
 [**Fantope Projection and Selection: A near-optimal convex relaxation of sparse PCA**](http://papers.nips.cc/paper/5136-fantope-projection-and-selection-a-near-optimal-convex-relaxation-of-sparse-pca.pdf). Advances in Neural Information Processing Systems 26, 2670--2678, 2013.
+
+# New references (10/27/2017)
+
+*Some duplicates*
+
+* V. Q. Vu, J. Cho, J. Lei, and K. Rohe.  
+[**Fantope Projection and Selection: A near-optimal convex relaxation of sparse PCA**](http://papers.nips.cc/paper/5136-fantope-projection-and-selection-a-near-optimal-convex-relaxation-of-sparse-pca.pdf). Advances in Neural Information Processing Systems 26, 2670--2678, 2013.
+* J. Wang, J. Lee, M. Mahdavi, M. Kolar, and N. Srebro.  
+[**Sketching Meets Random Projection in the Dual: A Provable Recovery Algorithm for Big and High-dimensional Data**](http://proceedings.mlr.press/v54/wang17d.html). Proceedings of the 20th International Conference on Artificial Intelligence and Statistics (AISTATS), Proceedings of Machine Learning Research, 54, 1150--1158, 2017.
+* L. Zhang, M. Mahdavi, R. Jin, T. Yang, and S. Zhu.  
+**Random projections for classification: A recovery approach**. IEEE Transactions on Information Theory, 60(11):7300--7316, 2014.
+* L. Zhang, M. Mahdavi, R. Jin, T. Yang, and S. Zhu.  
+[**Recovering the Optimal Solution by Dual Random Projection**](http://proceedings.mlr.press/v30/Zhang13a.html). Proceedings of the 26th Annual Conference on Learning Theory, Proceedings of Machine Learning Research, 30, 135--157, 2013.
+* Q. Li and J. Shao.  
+**Sparse quadratic discriminant analysis for high dimensional data**. Statistica Sinica, 25:457--473, 2015.
+* J. A. Ramey, C. K. Stein, P. D. Young, and D. M. Young.  
+[**High-Dimensional Regularized Discriminant Analysis**](https://arxiv.org/abs/1602.01182). 2016.
+* J. Fan, Y. Liao, and M. Mincheva.  
+[**Large covariance estimation by thresholding principal orthogonal complements**](http://dx.doi.org/10.1111/rssb.12016). Journal of the Royal Statistical Society: Series B (Statistical Methodology), 75(4):603--680, 2013.
+* T. I. Cannings and R. J. Samworth.  
+[**Random-projection ensemble classification**](http://dx.doi.org/10.1111/rssb.12228). Journal of the Royal Statistical Society: Series B (Statistical Methodology), 79(4):959--1035, 2017.
+* J. Fan, Y. Liao, and W. Wang.  
+[**Projected principal component analysis in factor models**](https://doi.org/10.1214/15-AOS1364). Annals of Statistics, 44(1):219--254, 2016.
+* Y. Fan, J. Jin, and Z. Yao.  
+[**Optimal classification in sparse Gaussian graphic model**](https://doi.org/10.1214/13-AOS1163). Annals of Statistics, 41(5):2537--2571, 2013.
+* Q. Mai and H. Zou.  
+[**A Note On the Connection and Equivalence of Three Sparse Linear Discriminant Analysis Methods**](http://dx.doi.org/10.1080/00401706.2012.746208). Technometrics, 55(2):243-246, 2013.
+* J. Fan, Z. T. Ke, H. Liu, and L. Xia.  
+[**QUADRO: A supervised dimension reduction method via Rayleigh quotient optimization**](https://doi.org/10.1214/14-AOS1307). Annals of Statistics, 43(4):1498--1534, 2015.
+
